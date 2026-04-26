@@ -11,7 +11,6 @@ public class CircularTextMeshPro : MonoBehaviour
     private TMP_Text m_TextComponent;
     private bool _isUpdating = false;
 
-    // 儲存前一次的數值，用來偵測 Inspector 中的改動
     private float _prevRadius;
     private float _prevAngle;
 
@@ -42,12 +41,14 @@ public class CircularTextMeshPro : MonoBehaviour
 
     void Update()
     {
+        // In edit mode, avoid per-frame checking (causes extra mesh work and editor churn with ExecuteAlways).
+#if UNITY_EDITOR
+        if (!Application.isPlaying) return;
+#endif
         if (m_TextComponent == null) return;
 
-        // 檢查自訂參數（半徑或角度）是否被使用者更改
         bool customParamsChanged = (radius != _prevRadius || angleOffset != _prevAngle);
 
-        // 如果文本內容改變，或者半徑/角度改變，就觸發更新
         if ((m_TextComponent.havePropertiesChanged || customParamsChanged) && !_isUpdating)
         {
             _prevRadius = radius;
@@ -55,6 +56,17 @@ public class CircularTextMeshPro : MonoBehaviour
             UpdateTextCurve();
         }
     }
+
+#if UNITY_EDITOR
+    void OnValidate()
+    {
+        if (m_TextComponent == null) m_TextComponent = GetComponent<TMP_Text>();
+        if (m_TextComponent == null) return;
+        _prevRadius = radius;
+        _prevAngle = angleOffset;
+        if (!Application.isPlaying && !_isUpdating) UpdateTextCurve();
+    }
+#endif
 
     void UpdateTextCurve()
     {
@@ -90,7 +102,7 @@ public class CircularTextMeshPro : MonoBehaviour
                 float angleRad = (center.x / radius) + (angleOffset * Mathf.Deg2Rad);
                 float sin = Mathf.Sin(angleRad);
                 float cos = Mathf.Cos(angleRad);
-
+ 
                 Vector3 newCenter = new Vector3(
                     sin * (center.y + radius), 
                     cos * (center.y + radius), 
@@ -103,7 +115,7 @@ public class CircularTextMeshPro : MonoBehaviour
                 {
                     Vector3 offset = sourceVertices[vertexIndex + j] - center;
                     sourceVertices[vertexIndex + j] = newCenter + rotation * offset;
-                }
+                } 
             }
 
             for (int i = 0; i < textInfo.materialCount; i++)
