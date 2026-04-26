@@ -57,6 +57,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _DistortionSpeed: 0.1
+    - _DistortionStrength: 0.01
+    - _DistortionTiling: 1
     - _Fullscreen_DepthWrite: 0
     - _Speed: 1
     - _Tiling: 27.6
