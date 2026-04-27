@@ -18,4 +18,13 @@ public enum SongType
 public class Songs : ScriptableObject
 {
     public List<Song> songs;
+
+    [Header("Editor CSV import")]
+    [Tooltip("Project path to the folder of lyric .csv files (e.g. Assets/Data or Assets/Lyrics/ShowA). Stems must match SongType: Song1, Song2, …")]
+    public string lyricsCsvFolder = "Assets/Data";
+
+    [Tooltip("File search pattern in that folder, e.g. Song*.csv or SetA_Song*.csv. Each matching file’s name (without .csv) must be a valid SongType.")]
+    public string lyricsFileNamePattern = "Song*.csv";
+
+    public const string DefaultSongsAssetPath = "Assets/Songs.asset";
 }

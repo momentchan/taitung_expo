@@ -58,7 +58,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _DistortionSpeed: 0.1
-    - _DistortionStrength: 0.01
+    - _DistortionStrength: 0
     - _DistortionTiling: 1
     - _Fullscreen_DepthWrite: 0
     - _Speed: 1
@@ -67,7 +67,7 @@ Material:
     - _Edge_Threshold_Softness_Gain_Strength: {r: 1.01, g: 0.95, b: 1.44, a: 0.25}
     - _FlareColor: {r: 2.9960785, g: 1.6163296, b: 0, a: 0}
     - _Speed: {r: 1, g: 1, b: 0, a: 0}
-    - _Strength_Small_Big: {r: 1.15, g: 0.25, b: 0, a: 0}
+    - _Strength_Small_Big: {r: 1.75, g: 0.25, b: 0, a: 0}
     - _Tiling: {r: 40, g: 20, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

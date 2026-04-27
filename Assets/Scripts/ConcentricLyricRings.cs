@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Serialization;
 using TMPro;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -18,11 +19,13 @@ public class ConcentricLyricRings : MonoBehaviour
     [SerializeField] SongType songType = SongType.Song1;
 
     [Header("Rings")]
+    [Tooltip("Radius of the outermost ring (last lyric in the list; larger index).")]
     [SerializeField] [Min(0.001f)] float outerRadius = 480f;
+    [Tooltip("Radius of the innermost ring (first lyric in the list; index 0). Equal radial steps between inner and outer.")]
     [SerializeField] [Min(0.001f)] float innerRadius = 40f;
-    [Tooltip("Largest type size (outermost ring). Inner rings scale down toward Min Font Size.")]
-    [SerializeField] [Min(1f)] float outerFontSize = 42f;
-    [SerializeField] [Min(1f)] float innerFontSize = 8f;
+    [Tooltip("Same point size on every ring.")]
+    [SerializeField] [Min(1f)] [FormerlySerializedAs("outerFontSize")]
+    float ringFontSize = 36f;
     [SerializeField] Color textColor = Color.white;
 
     [Header("Group layout")]
@@ -203,12 +206,18 @@ public class ConcentricLyricRings : MonoBehaviour
         rt.sizeDelta = new Vector2(10000f, 400f);
     }
 
+    /// <summary>Equal radial step: lower lyric index (smaller id) is inner; last line is outer.</summary>
+    static float RingRadiusAtIndex(int index, int lineCount, float outer, float inner)
+    {
+        if (lineCount <= 1) return 0.5f * (outer + inner);
+        float step = (outer - inner) / (lineCount - 1);
+        return inner + index * step;
+    }
+
     void UpdateRingContent(Transform ringTransform, int index, IReadOnlyList<string> lyrics)
     {
         int n = lyrics.Count;
-        float t = n <= 1 ? 0.5f : (float)index / (n - 1);
-        float ringRadius = Mathf.Lerp(outerRadius, innerRadius, t);
-        float fontSize = Mathf.Lerp(outerFontSize, innerFontSize, t);
+        float ringRadius = RingRadiusAtIndex(index, n, outerRadius, innerRadius);
 
         var go = ringTransform.gameObject;
         var tmp = go.GetComponent<TextMeshPro>();
@@ -217,7 +226,7 @@ public class ConcentricLyricRings : MonoBehaviour
 
         if (fontOverride != null) tmp.font = fontOverride;
         tmp.enableAutoSizing = false;
-        tmp.fontSize = fontSize;
+        tmp.fontSize = ringFontSize;
         tmp.color = textColor;
         tmp.textWrappingMode = TextWrappingModes.NoWrap;
         tmp.overflowMode = TextOverflowModes.Overflow;
@@ -242,7 +251,7 @@ public class ConcentricLyricRings : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(line)) return "·";
         string t = line.Trim();
-        return t;
+            return t;
     }
 
     // Optimized: Calculate needed padding mathematically instead of brute-force loop.
