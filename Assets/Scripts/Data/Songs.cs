@@ -1,11 +1,18 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.AddressableAssets;
 [Serializable]
 public class Song
 {
     public SongType type;
+
+    public AssetReferenceT<AudioClip> origin;
+    public AssetReferenceT<AudioClip> vocal;
+    public AssetReferenceT<AudioClip> chord;
+    public AssetReferenceT<AudioClip> bass;
+    public AssetReferenceT<AudioClip> hidrums;
+    public AssetReferenceT<AudioClip> lowdrums;
     public List<string> lyrics;
 }
 
@@ -18,13 +25,4 @@ public enum SongType
 public class Songs : ScriptableObject
 {
     public List<Song> songs;
-
-    [Header("Editor CSV import")]
-    [Tooltip("Project path to the folder of lyric .csv files (e.g. Assets/Data or Assets/Lyrics/ShowA). Stems must match SongType: Song1, Song2, …")]
-    public string lyricsCsvFolder = "Assets/Data";
-
-    [Tooltip("File search pattern in that folder, e.g. Song*.csv or SetA_Song*.csv. Each matching file’s name (without .csv) must be a valid SongType.")]
-    public string lyricsFileNamePattern = "Song*.csv";
-
-    public const string DefaultSongsAssetPath = "Assets/Songs.asset";
 }

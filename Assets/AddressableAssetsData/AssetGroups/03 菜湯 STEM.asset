@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: "03 \u83DC\u6E6F STEM"
+  m_EditorClassIdentifier: 
+  m_GroupName: "03 \u83DC\u6E6F STEM"
+  m_GUID: fa433aaa45a2ede4590279cb17ecf3ad
+  m_SerializeEntries:
+  - m_GUID: 37ab7b9e960664c4ca6f5423f4a6693d
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/03 \u83DC\u6E6F STEM/03 \u83DC\u6E6F
+      STEM Vocal"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 41ada0207cdb9d64da819d211c923156
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/03 \u83DC\u6E6F STEM/03 \u83DC\u6E6F
+      STEM \u793A\u610F\u539F\u66F2"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5b18d1cc9cbeee44a9819173e57b55bf
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/03 \u83DC\u6E6F STEM/03 \u83DC\u6E6F
+      STEM Bass"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 88702d53dc91a74469d51e470ecb7755
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/03 \u83DC\u6E6F STEM/03 \u83DC\u6E6F
+      STEM lo-Drums"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a4735a2e87cd9654a8f6ecb9f62772be
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/03 \u83DC\u6E6F STEM/03 \u83DC\u6E6F
+      STEM Chords"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b93899f908693304299e99f5dd403859
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/03 \u83DC\u6E6F STEM/03 \u83DC\u6E6F
+      STEM hi-Drums"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: f0cbc5a88b536c04d82e2641d8f32ff4, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 40d3c58d321c9ff4287794ef80a93b2d, type: 2}
+    - {fileID: 11400000, guid: 60c40bf52776bdf428e28f2620dc2866, type: 2}

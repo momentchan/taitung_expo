@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: "04 \u5BB4\u6703\u6B4C\u821E"
+  m_EditorClassIdentifier: 
+  m_GroupName: "04 \u5BB4\u6703\u6B4C\u821E"
+  m_GUID: f5e78b84f526508499469ed8d0b9b64a
+  m_SerializeEntries:
+  - m_GUID: 10c64282062c8884f96e7160d9f384aa
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/04 \u5BB4\u6703\u6B4C\u821E/04 \u5BB4\u6703\u6B4C\u821E
+      Bass"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2d7dde8bf6936694db8cc3c614043213
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/04 \u5BB4\u6703\u6B4C\u821E/04 \u5BB4\u6703\u6B4C\u821E
+      Vocal"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c2cc4dce84779c9498d054d6407ca3ad
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/04 \u5BB4\u6703\u6B4C\u821E/04 \u5BB4\u6703\u6B4C\u821E
+      lo-Drums"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d62980f7f134ccb4dacea9eaf2661115
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/04 \u5BB4\u6703\u6B4C\u821E/04 \u5BB4\u6703\u6B4C\u821E
+      Chords"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ef60e89351f337b4bb7715fdc7edd429
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/04 \u5BB4\u6703\u6B4C\u821E/04 \u5BB4\u6703\u6B4C\u821E
+      \u793A\u610F\u539F\u66F2"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f13027bd36b9f694e9449e0de0850e5c
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/04 \u5BB4\u6703\u6B4C\u821E/04 \u5BB4\u6703\u6B4C\u821E
+      hi-Drums"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: f0cbc5a88b536c04d82e2641d8f32ff4, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 26267940f478b5d4492caa075f63bf25, type: 2}
+    - {fileID: 11400000, guid: 5265a2741bf68de41ad10da9570870a2, type: 2}

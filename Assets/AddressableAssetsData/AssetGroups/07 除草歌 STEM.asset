@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: "07 \u9664\u8349\u6B4C STEM"
+  m_EditorClassIdentifier: 
+  m_GroupName: "07 \u9664\u8349\u6B4C STEM"
+  m_GUID: 37535c3c3eb96534b812217ffd68636d
+  m_SerializeEntries:
+  - m_GUID: 3fa6f4519ac46af4fbc173af40a917d6
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/07 \u9664\u8349\u6B4C STEM/07 \u9664\u8349\u6B4C
+      STEM hi-Drums"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a6dbd86755ded674cb454c9a6baf84f3
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/07 \u9664\u8349\u6B4C STEM/07 \u9664\u8349\u6B4C
+      STEM lo-Drums"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: abc30e0eacab5144da00a2008121d75c
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/07 \u9664\u8349\u6B4C STEM/07 \u9664\u8349\u6B4C
+      STEM Vocal"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ac51d3c4e641ace4ab71deb99e9a398c
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/07 \u9664\u8349\u6B4C STEM/07 \u9664\u8349\u6B4C
+      STEM Bass"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b09687657c3642e4cb1783e18098d7bf
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/07 \u9664\u8349\u6B4C STEM/07 \u9664\u8349\u6B4C
+      STEM \u793A\u610F\u539F\u66F2"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c653cc6f5f14ecc4bab9a1c73b0839c9
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/07 \u9664\u8349\u6B4C STEM/07 \u9664\u8349\u6B4C
+      STEM Chords"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: f0cbc5a88b536c04d82e2641d8f32ff4, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 098bac2f0b44c694d9df97f7a9dc5f97, type: 2}
+    - {fileID: 11400000, guid: 1cec27c6ee98978479ec43f5e34b3ea1, type: 2}

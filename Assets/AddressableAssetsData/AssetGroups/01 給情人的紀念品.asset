@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: "01 \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1"
+  m_EditorClassIdentifier: 
+  m_GroupName: "01 \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1"
+  m_GUID: 0d103204f719f974185c65cc570ca1e4
+  m_SerializeEntries:
+  - m_GUID: 436ca73a4d862c54ea6893360d79bf75
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/01 \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1/01
+      \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1 \u793A\u610F\u539F\u66F2"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5cbc58beb5c549c4fa8b3f32c358f02a
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/01 \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1/01
+      \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1 Bass"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8ab030b2eeb462f44ab8edf4a4dbe7a3
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/01 \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1/01
+      \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1 Chords"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c91518716828afa44bcf5a60b2a18d58
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/01 \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1/01
+      \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1 hi-Drums"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d17ca00236829ba4ca53da6bb5a62cdd
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/01 \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1/01
+      \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1 lo-Drums"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e63121b4c5b56944d88b44b5fbdc1b94
+    m_Address: "\u4E92\u52D5\u88DD\u7F6E STEM/01 \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1/01
+      \u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1 Vocal"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: f0cbc5a88b536c04d82e2641d8f32ff4, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 5c6e51c490000a040b2913d8c8e53517, type: 2}
+    - {fileID: 11400000, guid: d1958af473eca2b4faedbf8585800700, type: 2}

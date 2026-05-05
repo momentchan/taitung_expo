@@ -15,19 +15,413 @@ MonoBehaviour:
   songs:
   - type: 0
     lyrics:
-    - The pulse of the land beats steady and strong.
-    - Infinite stories written in the shifting shadows.
-    - Each breath echoes the wisdom of the elders.
-    - Clouds gather above the meeting place.
-    - Legends wake within the heart of the forest. Stone paths lead us back to the
-      beginning.
-    - We carry the fire passed through generations. Voices unite in the rhythm of
-      the harvest.
-    - Tafalong sea is a vision of beauty. Ancient songs drift across the mountain
-      range. Roots reach down into the sacred earth.
-    - The tongue of the Amis sings deep. We honor the work left by those before.
-      Golden sunlight dancing upon the crest.
-    - Looking upward to the vast open sky. Our river flows through the ancient valley.
-      Walking together on the road of life.
-    - Tafalong is the home of our spirit. The face of the Pangcah shines bright.
-      We remember the tides of our ancestors.
+    - "Tayra sa kako i loma\u2019 no rira wawa, hemek sanay kora wawa."
+    - "\u2019Acyah ko hemek iso idang to tireng sa no mako, tiya kako ha idang mahemek
+      ko harateng."
+    - Patanem han nako paiceeb ko rira wawa, karat sanay to ngoyos.
+    - "\u2019Acyah ko piri\u2019 iso idang to iceb sa no mako, tiya kako ha idang
+      mararom ko harateng."
+    - Pakining han nako to toki ko rira wawa, tok^tok han nira to fakeloh.
+    - "Kesem sa ko harateng to faluco\u2019 nora wawa."
+    - "\u2019Acyah ko piri\u2019 iso idang to toki sa no mako."
+    origin:
+      m_AssetGUID: 436ca73a4d862c54ea6893360d79bf75
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    vocal:
+      m_AssetGUID: e63121b4c5b56944d88b44b5fbdc1b94
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    chord:
+      m_AssetGUID: 8ab030b2eeb462f44ab8edf4a4dbe7a3
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    bass:
+      m_AssetGUID: 5cbc58beb5c549c4fa8b3f32c358f02a
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    hidrums:
+      m_AssetGUID: c91518716828afa44bcf5a60b2a18d58
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    lowdrums:
+      m_AssetGUID: d17ca00236829ba4ca53da6bb5a62cdd
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - type: 1
+    lyrics:
+    - "\"Yo pasi\u2019amis a yo pasitimol, o masarakesay ya o masarakesay ya o mamikuli."
+    - Kuliay ya kuliay i takuwanan, hay ya mapolong a matayal.
+    - "Yo pasi\u2019amis yo pasiitip, icoway ko nengnengen no wali wawa?"
+    - Yo melimeli yo melimeli, koyosay to tino kayoing, o cimay hakiya?
+    - "Yo pasi\u2019etip a yo pasitimol, icoway ko nengnengen no wali wawa?"
+    - Yo felatfelat sa yo felatfelat, koya alopong no kayoing, o cimay hakiya?
+    - Tangasa i wali nosi no lotok, ccay ko fulad a sanasengseng ya u karaw iso.
+    - "U karaw ya u karaw no tatusaay, naw\u2019ay naw\u2019ay ya sa kako."
+    - "Tangasa i tokos misano lutung, yosi ko ocinara ca\u2019 sano ngaci u pising
+      iso."
+    - U pising ya u pising no tatusaay, ay ya ay ya kako lina.
+    - "Yo pasi\u2019amis yo pasitimol, o masarekesay o masarekesay o mamikuli."
+    - Kuliay ya kuliay i takuwanan, hay ya mapolong hay ya matayal."
+    origin:
+      m_AssetGUID: 21232d5300bbf824983e4e6e56198ea1
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    vocal:
+      m_AssetGUID: c9895eb4207f2244c95b199d8d564c88
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    chord:
+      m_AssetGUID: 8e921d68aa825834dbe0af8af7fb9748
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    bass:
+      m_AssetGUID: 3e49e94475d010e41997e34beb637252
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    hidrums:
+      m_AssetGUID: 3086622b96127e048b93d977046b997a
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    lowdrums:
+      m_AssetGUID: cd8dfa73406552f45b7c38e6635b0def
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - type: 2
+    lyrics:
+    - Hiya hooyan u kuhaw. Kuhaw no futing, kohaw i han naca. Aredetay!
+    - Hiya hooyan u kuhaw. Kuhaw sa no futing, kohaw i han naca. Aredetay!
+    - "Hiya hooyan u kuhaw. Kuhaw no \u2019alutuc, kohaw i han naca. Anengelay!"
+    - "Hiya hooyan u kuhaw. Kuhaw no \u2019alutuc, kohaw i han naca. Anengelay!"
+    - Hiya hooyan u kuhaw. Kuhaw no karang, kohaw i han naca. Aremitay!
+    - Hiya hooyan u kuhaw. Kuhaw sa no karang, kohaw i han naca. Aremitay!
+    - Hiya hooyan u kuhaw. Kuhaw no katac, kohaw i han naca. Sidingetay!
+    - Hiya hooyan u kuhaw. Kuhaw sa no katac, kohaw i han naca. Sidingetay!
+    - Hiya hooyan u kuhaw. Kuhaw no sufading, kohaw i han naca. Sirikuray!
+    - Hiya hooyan u kuhaw. Kuhaw no sufading, kohaw i han naca. Sirikuray!
+    - "Hiya hooyan u kuhaw. Kuhaw no fananiol, kohaw i han naca. Siputa\u2019ay!"
+    - "Hiya hooyan u kuhaw. Kuhaw no fananiol, kuhaw i han naca. Siputa\u2019ay!"
+    origin:
+      m_AssetGUID: 41ada0207cdb9d64da819d211c923156
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    vocal:
+      m_AssetGUID: 37ab7b9e960664c4ca6f5423f4a6693d
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    chord:
+      m_AssetGUID: a4735a2e87cd9654a8f6ecb9f62772be
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    bass:
+      m_AssetGUID: 5b18d1cc9cbeee44a9819173e57b55bf
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    hidrums:
+      m_AssetGUID: b93899f908693304299e99f5dd403859
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    lowdrums:
+      m_AssetGUID: 88702d53dc91a74469d51e470ecb7755
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - type: 3
+    lyrics:
+    - Hiya hay yan ha Hiya hay yo yan, Hi ya o hoy yan,
+    - Hiya o hay yo yan Hi ya o hoy yan, hoy yan hoy yo yan,
+    - Hay yo yan ho i yoin hoy yan, hay yo yan i ya o hay yan.
+    - Hiya hay yan ha Hiya hay yo yan, Hi ya o hoy yan,
+    - Hiya o hay yo yan Hi ya o hoy yan, hoy yan hoy yo yan,
+    - Hay yo yan ho i yoin hoy yan, hay yo yan i ya o hay yan.
+    - Hiya hay yan ha Hiya hay yo yan, Hi ya o hoy yan,
+    - Hiya o hay yo yan Hi ya o hoy yan, hoy yan hoy yo yan,
+    - Hay yo yan ho i yoin hoy yan, hay yo yan i ya o hay yan.
+    - Hiya hay yan ha Hiya hay yo yan, Hi ya o hoy yan,
+    - Hiya o hay yo yan Hi ya o hoy yan, hoy yan hoy yo yan,
+    - Hay yo yan ho i yoin hoy yan, hay yo yan i ya o hay yan.
+    - Hiya hay yan ha Hiya hay yo yan, Hi ya o hoy yan,
+    - Hiya o hay yo yan Hi ya o hoy yan, hoy yan hoy yo yan,
+    - Hay yo yan ho i yoin hoy yan, hay yo yan in ho hay yan.
+    origin:
+      m_AssetGUID: ef60e89351f337b4bb7715fdc7edd429
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    vocal:
+      m_AssetGUID: 2d7dde8bf6936694db8cc3c614043213
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    chord:
+      m_AssetGUID: d62980f7f134ccb4dacea9eaf2661115
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    bass:
+      m_AssetGUID: 10c64282062c8884f96e7160d9f384aa
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    hidrums:
+      m_AssetGUID: f13027bd36b9f694e9449e0de0850e5c
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    lowdrums:
+      m_AssetGUID: c2cc4dce84779c9498d054d6407ca3ad
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - type: 4
+    lyrics:
+    - Felat felat sa yo pising, yo pising iso ha ina,
+    - yo paikuran no miso ha ina, haya harateng iso ina.
+    - Hay nalowan hiyoin, hay nalowan hiya o hay yan, ho ay yi yan ho hay yan.
+    - Felat felat sa yo pising, yo pising iso haw kaka,
+    - yo kainalan no foraforay yan, haya o tileng iso kaka.
+    - Hay nalowan hiyoin, hay nalowan hiya o hay yan, ho ay yi yan ho hay yan.
+    - Felat felat sa yo pising, yo pising iso ha ina,
+    - yo pa ikuran no miso ha ina, haya harateng iso ina.
+    - Hay nalowan hiyoin, hay nalowan yoin, ho ay yi yan ho hay yan.
+    origin:
+      m_AssetGUID: ab5878431ce9f6e42a6197c1d0c50d9e
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    vocal:
+      m_AssetGUID: b5281ca5ca1d284429471c057cb0721c
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    chord:
+      m_AssetGUID: 3d67581dabfb41b4facffc835e397afb
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    bass:
+      m_AssetGUID: 72c1c98bbf7f60649870de228d676866
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    hidrums:
+      m_AssetGUID: 95c51e4f32858b745ae6ec222f25c785
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    lowdrums:
+      m_AssetGUID: ecf05d4b86f33ea49bb59c0308d1f329
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - type: 5
+    lyrics:
+    - Hay yo i yi ay ya ay ya ya yen,
+    - hay yan na i yo ay yen hoy yan na i ya hay yan,
+    - hay yan na i ya ay yan ho ay yan,
+    - "han hi yen ay yan a hi yan ay hi\u2019n, hoy yen han yo in i ya ay yay."
+    - Ho i yi yan i yi yan na i ye,
+    - "hay yan na i ya hay yan ho ay yan na hi yan hay hi\u2019,"
+    - hay yan na i yan hay yan ho ay yan,
+    - "han hi yan hi yan na hi yan hay hi\u2019n, hoy yan han hi ya on hay hi\u2019n
+      i ya hay yay."
+    - Hay yo i hi hay ya hay hayng ya,
+    - hoy yan na i yo i yen hoy yan na i ya hay yan,
+    - hay yan na i ya ay yen ho ay yan,
+    - "han hi yan hi yan na i yan hay hi\u2019n, hoy yin han yo in hi ya hoy yan."
+    - "Ho i yi yan i yi yan na i hi\u2019y,"
+    - "hay yan na i ya hay yan ho ay yan na hi yan hay hi\u2019,"
+    - hay yan na i yan hay yan ho ay yan,
+    - "han hi yan hi yan na hi yan hay hi\u2019n, hi\u2019y yan han hi ya on hay
+      hi\u2019n i ya hay yay."
+    - "Hay yo i hi\u2019 ay ya ay ya ya yen,"
+    - hay yan na i yo ay yen hoy yan na i ya hay yan,
+    - hay yan na i ya ay yan ho ay yan,
+    - "han hi yan ay yan a hi yan ay hi\u2019n, hoy yin han yo on i ya ay yay."
+    - Ho i yi yan i yi yan na i ye,
+    - hay yan na i ya hay yan ho ay yan na hi yan hay hi,
+    - hay yan na i yan hay yan ho ay yan,
+    - "han hi yan hi yan na hi yan hay hi\u2019n, hoy yan han hi ya on hay hi\u2019n
+      i ya hay yay."
+    origin:
+      m_AssetGUID: 8b10b7d93b302e846bcc91b9828092aa
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    vocal:
+      m_AssetGUID: e3a06e678bae45148971dd208b01468a
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    chord:
+      m_AssetGUID: 1a8d2429959b4b044b6ffd0f16e77fcd
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    bass:
+      m_AssetGUID: e98a77127e9dbd54d9006daeeb3b0372
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    hidrums:
+      m_AssetGUID: b39ee06f32a1943479cb37a25d4e35c0
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    lowdrums:
+      m_AssetGUID: 31ad11b8eac218c4c8c34916f96862ea
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - type: 6
+    lyrics:
+    - "Hay ya hikasi hikasi i kalaloman, malingad talomah kami \u2019alayay to takuyodan,"
+    - hoy ya tahila i omah sato kami, tatuyay to raral kami kulasay to pakreng.
+    - Hoy yo minukay sato dadaya kami, tayra i Piwma kami patawsi sato kami,
+    - "hay ya minukay marasang sato kami, tahira i loma\u2019 kami mapoi\u2019 ko
+      fafahi."
+    - Hay ya mahalek malafi sato kami, ci dateng sato kami o futing no acawa.
+    - Hay ya hikasi hikasi i kalaloman, malingad talomah kami kalicay i paliding,
+    - hoy yo tahila i omah sato kami, tangsol maepod kami panayay to pakreng.
+    - Hoy ya ila to kiya heci noya panay, cecayay a sato kiya heci niya panay sano
+      niyam,
+    - "hoy yo minukay sato dadaya kami, tahira i loma\u2019 kami filoay ya matifek."
+    - Hay ya mahalek malafi sato kami, ci dateng sato kami o cekiw no acawa.
+    origin:
+      m_AssetGUID: b09687657c3642e4cb1783e18098d7bf
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    vocal:
+      m_AssetGUID: abc30e0eacab5144da00a2008121d75c
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    chord:
+      m_AssetGUID: c653cc6f5f14ecc4bab9a1c73b0839c9
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    bass:
+      m_AssetGUID: ac51d3c4e641ace4ab71deb99e9a398c
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    hidrums:
+      m_AssetGUID: 3fa6f4519ac46af4fbc173af40a917d6
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    lowdrums:
+      m_AssetGUID: a6dbd86755ded674cb454c9a6baf84f3
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - type: 7
+    lyrics:
+    - Hiya aya kako ino kini, awa maan ko teli no matiniay.
+    - Ano ccayho ano tusaho, ikor liwac ilato ko daysang a palilam to tilid.
+    - Hapatay pataytu hapatay pataytu, ino sanay ino kako ha kiso ina amaaw.
+    - Hiya aya kako ino kini, awa maan ko teli no matiniay.
+    - Ano ccay kako u cima ko micelol, i takuwanan ito kako ha kiso ina.
+    - Hapatay pataytu hapatay pataytu, ino sanay ino kako ha kiso ina amaaw.
+    - Hiya aya kako ino kini, awa maan ko teli no matiniay.
+    - Ano ccayho ano tusaho, ikor liwac ilatu ko daysang a palilam to tilid.
+    - Hapatay pataytu hapatay pataytu, ino sanay ino kako ha kiso ina amaaw.
+    origin:
+      m_AssetGUID: 1c0c78bcaa57797489b22449f5ceb6a5
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    vocal:
+      m_AssetGUID: 3815166367f69634091aca20c4357e33
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    chord:
+      m_AssetGUID: 1343b96eab53a4e4c8d769602b731a8c
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    bass:
+      m_AssetGUID: f9863b15a03fca341ace6f3f47d90901
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    hidrums:
+      m_AssetGUID: 885ffa898fbd4c647ac0cc6660fff9c2
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    lowdrums:
+      m_AssetGUID: 3ae6f205485163d4b810d94e6ee3b4f2
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  lyricsCsvFolder: Assets/Data
+  lyricsFileNamePattern: Song*.csv
