@@ -1,73 +1,184 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace TaitungExpo
 {
     public class SongManager : MonoBehaviour
     {
+        [Header("Data")]
+        [SerializeField] private int currentSongIndex = 0;
+        [SerializeField] private Songs songsDatabase;
+        
+        [Header("Tracking Parameters")]
         [SerializeField] private float maxDepth = 2f;
         [SerializeField] private float volumeSmoothing = 0.5f;
 
-        [SerializeField] private List<VolumeTracker> volumeTrackers;
+        [Header("Scene References")]
+        [SerializeField] private List<StemAudioZone> audioZones;
 
-        void Start()
+        [Header("Debug")]
+        [SerializeField] private bool showDebugUI = true;
+
+        private Dictionary<StemType, AsyncOperationHandle<AudioClip>> loadedHandles = new Dictionary<StemType, AsyncOperationHandle<AudioClip>>();
+        
+        private bool isSwitchingSong = false;
+        private int playingSongIndex = -1;
+        private Vector2 debugUiScroll;
+
+        async void Start()
         {
-
+            await ChangeSong(currentSongIndex);
         }
 
         void Update()
         {
+            // Detection for Inspector changes during Play Mode
+            if (currentSongIndex != playingSongIndex && !isSwitchingSong)
+            {
+                _ = ChangeSong(currentSongIndex); 
+            }
 
-            foreach (var vt in volumeTrackers)
+            if (TrackerManager.Instance == null || TrackerManager.Instance.ActiveTrackers == null) return;
+
+            foreach (var zone in audioZones)
             {
                 var trackersInVolume = TrackerManager.Instance.ActiveTrackers
-                    .Where(t => vt.ContainsNormalizedPosition(t.pos))
+                    .Where(t => zone.ContainsNormalizedPosition(t.pos))
                     .ToArray();
-                vt.UpdateVolume(trackersInVolume, maxDepth, volumeSmoothing);
+                    
+                zone.UpdateVolume(trackersInVolume, maxDepth, volumeSmoothing);
             }
         }
-    }
 
-    [System.Serializable]
-    public class VolumeTracker
-    {
-        [SerializeField] private VolumePosition position;
-        [SerializeField] private Vector2 xRange, yRange;
-        [SerializeField] private float currentVolume;
-
-        public void UpdateVolume(TrackerData[] trackers, float maxDepth, float volumeSmoothing)
+        // OnGUI runs on the main thread and is handy for quick debug overlays
+        void OnGUI()
         {
-            float target;
-            if (trackers == null || trackers.Length == 0)
+            if (!showDebugUI || audioZones == null) return;
+
+            var richLabel = new GUIStyle(GUI.skin.label) { richText = true };
+
+            // Fixed-area height clips rows past the bottom; use a scroll view so every zone stays reachable.
+            const float panelWidth = 300f;
+            float panelHeight = Mathf.Clamp(Screen.height - 40f, 160f, 480f);
+
+            GUI.backgroundColor = new Color(0, 0, 0, 0.7f);
+            GUILayout.BeginArea(new Rect(10, 10, panelWidth, panelHeight), GUI.skin.box);
+            debugUiScroll = GUILayout.BeginScrollView(debugUiScroll);
+            GUILayout.Label("<b>SONG MANAGER DEBUG</b>", richLabel);
+            GUILayout.Label($"Current Song: {currentSongIndex} ({(isSwitchingSong ? "Loading..." : "Ready")})", richLabel);
+            GUILayout.Space(5);
+
+            foreach (var zone in audioZones)
             {
-                target = 0f;
-            }
-            else
-            {
-                var denom = Mathf.Max(0.0001f, maxDepth);
-                var sum = trackers.Sum(t => t.depth);
-                target = Mathf.Clamp01(sum / denom);
+                if (zone == null) continue;
+
+                string stemName = zone.targetStem.ToString();
+                string posName = zone.positionLabel.ToString();
+                float vol = zone.CurrentVolume;
+                string bar = new string('|', (int)(vol * 20));
+
+                GUILayout.Label($"{posName} [{stemName}]: {vol:F2}", richLabel);
+                GUILayout.Label($"<color=green>{bar}</color>", richLabel);
             }
 
-            float t = Mathf.Clamp01(volumeSmoothing);
-            currentVolume = Mathf.Lerp(currentVolume, target, t);
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
         }
 
-        public bool ContainsNormalizedPosition(Vector2 pos)
+        public async Task ChangeSong(int newIndex)
         {
-            float xMin = Mathf.Min(xRange.x, xRange.y);
-            float xMax = Mathf.Max(xRange.x, xRange.y);
-            float yMin = Mathf.Min(yRange.x, yRange.y);
-            float yMax = Mathf.Max(yRange.x, yRange.y);
-            return pos.x >= xMin && pos.x <= xMax && pos.y >= yMin && pos.y <= yMax;
+            if (isSwitchingSong) return;
+            if (newIndex < 0 || newIndex >= songsDatabase.songs.Count)
+            {
+                Debug.LogWarning("Invalid Song Index!");
+                return;
+            }
+
+            isSwitchingSong = true;
+            currentSongIndex = newIndex;
+            playingSongIndex = newIndex;
+
+            // Stop playback and clear clips
+            foreach (var zone in audioZones)
+            {
+                zone.Source.Stop();
+                zone.Source.clip = null;
+            }
+
+            // Release previous Addressable assets from memory
+            foreach (var handle in loadedHandles.Values)
+            {
+                if (handle.IsValid()) Addressables.Release(handle);
+            }
+            loadedHandles.Clear();
+
+            // Load new assets
+            await LoadAndPlaySong(currentSongIndex);
+            
+            isSwitchingSong = false;
         }
 
-    }
+        private async Task LoadAndPlaySong(int index)
+        {
+            Song targetSong = songsDatabase.songs[index];
+            List<Task> loadTasks = new List<Task>();
 
-    public enum VolumePosition
-    {
-        BottomLeft, BottomRight, TopLeft, TopRight
+            foreach (var zone in audioZones)
+            {
+                AssetReferenceT<AudioClip> assetRef = GetStemReference(targetSong, zone.targetStem);
+                if (assetRef == null || !assetRef.RuntimeKeyIsValid()) continue;
+
+                var handle = assetRef.LoadAssetAsync<AudioClip>();
+                loadedHandles[zone.targetStem] = handle;
+                
+                // Add to parallel loading tasks
+                loadTasks.Add(handle.Task.ContinueWith(t => 
+                {
+                    if (handle.Status == AsyncOperationStatus.Succeeded)
+                    {
+                        zone.Source.clip = handle.Result;
+                    }
+                }, TaskScheduler.FromCurrentSynchronizationContext())); 
+            }
+
+            // Wait for all stems to finish loading
+            await Task.WhenAll(loadTasks);
+
+            // Synchronized start
+            foreach (var zone in audioZones)
+            {
+                if (zone.Source.clip != null)
+                {
+                    zone.Source.Play();
+                }
+            }
+        }
+
+        private AssetReferenceT<AudioClip> GetStemReference(Song song, StemType type)
+        {
+            switch (type)
+            {
+                case StemType.Origin: return song.origin;
+                case StemType.Vocal: return song.vocal;
+                case StemType.Chord: return song.chord;
+                case StemType.Bass: return song.bass;
+                case StemType.HiDrums: return song.hidrums;
+                case StemType.LoDrums: return song.lowdrums;
+                default: return null;
+            }
+        }
+        
+        void OnDestroy()
+        {
+            foreach (var handle in loadedHandles.Values)
+            {
+                if (handle.IsValid()) Addressables.Release(handle);
+            }
+            loadedHandles.Clear();
+        }
     }
 }
