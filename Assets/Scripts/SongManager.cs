@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using Klak.Hap;
 
 namespace TaitungExpo
 {
@@ -16,6 +18,11 @@ namespace TaitungExpo
         [Header("Tracking Parameters")]
         [SerializeField] private float maxDepth = 2f;
         [SerializeField] private float volumeSmoothing = 0.5f;
+
+        [Header("Video")]
+        [SerializeField] private string videoFolderPath = "C:/TaitungExpo";
+        [SerializeField] private HapPlayer videoPlayer;
+
 
         [Header("Scene References")]
         [SerializeField] private List<StemAudioZone> audioZones;
@@ -125,6 +132,7 @@ namespace TaitungExpo
         private async Task LoadAndPlaySong(int index)
         {
             Song targetSong = songsDatabase.songs[index];
+            TryOpenHapVideoForSong(targetSong);
             List<Task> loadTasks = new List<Task>();
 
             foreach (var zone in audioZones)
@@ -156,6 +164,29 @@ namespace TaitungExpo
                     zone.Source.Play();
                 }
             }
+        }
+
+        void TryOpenHapVideoForSong(Song song)
+        {
+            if (videoPlayer == null) return;
+
+            // Same HapPlayer instance: Klak blocks Open() while a stream exists, so tear down like OnDestroy first.
+            videoPlayer.CloseStreamIfOpen();
+
+            string relativeOrName = song != null ? song.videoFileName : null;
+            string fullPath = null;
+            if (!string.IsNullOrWhiteSpace(relativeOrName))
+            {
+                var trimmed = relativeOrName.Trim();
+                fullPath = Path.IsPathRooted(trimmed)
+                    ? trimmed
+                    : Path.Combine(videoFolderPath, trimmed);
+                fullPath = Path.GetFullPath(fullPath);
+            }
+
+            videoPlayer.time = 0f;
+            if (!string.IsNullOrEmpty(fullPath))
+                videoPlayer.Open(fullPath, HapPlayer.PathMode.LocalFileSystem);
         }
 
         private AssetReferenceT<AudioClip> GetStemReference(Song song, StemType type)

@@ -13,6 +13,10 @@ public class Song
     public AssetReferenceT<AudioClip> bass;
     public AssetReferenceT<AudioClip> hidrums;
     public AssetReferenceT<AudioClip> lowdrums;
+
+    // Filming / material video filename from CSV column C only (zero-based field index 2).
+    public string videoFileName;
+
     public List<string> lyrics;
 }
 

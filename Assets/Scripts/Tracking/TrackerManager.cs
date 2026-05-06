@@ -13,6 +13,12 @@ namespace TaitungExpo
         [SerializeField] private float distanceThreshold = 0.1f;
         [SerializeField] private bool mouseUpdate = true;
 
+        [Header("Mouse depth (LMB)")]
+        [SerializeField] private float mouseDepthPressSpeed = 8f;
+        [SerializeField] private float mouseDepthReleaseSpeed = 3f;
+
+        private float mouseSmoothedDepth;
+
         public GraphicsBuffer TrackerBuffer { get; private set; }
         public TrackerData[] Trackers { get; private set; }
         public TrackerData[] ActiveTrackers => Trackers.Where(t => t.active == 1).ToArray();
@@ -69,6 +75,10 @@ namespace TaitungExpo
         private void UpdateMouseTrackerData()
         {
             var pos = new Vector2(Input.mousePosition.x / Screen.width, Input.mousePosition.y / Screen.height);
+            float depthTarget = Input.GetMouseButton(0) ? 1f : 0f;
+            float depthSpeed = Input.GetMouseButton(0) ? mouseDepthPressSpeed : mouseDepthReleaseSpeed;
+            mouseSmoothedDepth = Mathf.MoveTowards(mouseSmoothedDepth, depthTarget, depthSpeed * Time.deltaTime);
+
             var data = new TrackerData
             {
                 active = 1,
@@ -78,7 +88,7 @@ namespace TaitungExpo
                 dir = (pos - MouseData.pos).normalized,
                 lastUpdateTime = Time.time,
                 activeRatio = 1,
-                depth = 1
+                depth = mouseSmoothedDepth
             };
             Trackers[mouseId] = data;
         }

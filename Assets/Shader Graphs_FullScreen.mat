@@ -23,6 +23,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _GradientTexture:
+        m_Texture: {fileID: 8400000, guid: 1bb871c684236584d92da4b4e76d4cf3, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _UI:
         m_Texture: {fileID: 8400000, guid: 8e915e22c47c9f34dba42cef21e5a6c0, type: 2}
         m_Scale: {x: 1, y: 1}
