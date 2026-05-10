@@ -76,6 +76,9 @@ namespace TaitungExpo
                     depthMat.SetFloat("_BlurRadius", blurRadius);
                     depthMat.SetFloat("_DepthMultiplier", depthMultiplier);
                     Graphics.Blit(mask, target, depthMat);
+
+                    // Global depth mask for fullscreen / render-graph passes (e.g. masked frame blend).
+                    Shader.SetGlobalTexture("_TrackerDepthMask", target);
                 }
             }
         }

@@ -22,14 +22,24 @@ Shader "Unlit/TextQuad"
 
         [Header(Final)]
         [HDR] _HdrTint ("HDR Tint", Color) = (1,1,1,1)
+
+        [Header(Alpha FBM)]
+        _TextQuadAlphaFbmScale ("Alpha FBM Scale", Float) = 3
+        _TextQuadAlphaFbmTimeScale ("Alpha FBM Time Scale", Float) = 0.2
+        _TextQuadAlphaFbmPhase ("Alpha FBM Phase", Float) = 0
+        _TextQuadAlphaFbmThreshold ("Alpha FBM Threshold", Range(-0.1, 1)) = 1
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "Queue" = "Transparent" "RenderType" = "Transparent" "IgnoreProjector" = "True" }
         LOD 100
 
         Pass
         {
+            Blend One Zero
+            ZWrite Off
+            Cull Off
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -71,6 +81,12 @@ Shader "Unlit/TextQuad"
 
             half4 _HdrTint;
 
+            float _TextQuadAlphaFbmScale;
+            float _TextQuadAlphaFbmTimeScale;
+            float _TextQuadAlphaFbmPhase;
+
+            half _TextQuadAlphaFbmThreshold;
+
             v2f vert (appdata v)
             {
                 v2f o;
@@ -97,8 +113,13 @@ Shader "Unlit/TextQuad"
                 rgb += bloomLarge.rgb * (_BloomLargeStrength * (half)modLarge);
                 rgb *= _HdrTint.rgb;
 
-                half4 col = half4(rgb, ui.a * _HdrTint.a);
-                UNITY_APPLY_FOG(i.fogCoord, col);
+
+                float fAlpha = fbm2(i.uv * _TextQuadAlphaFbmScale, _Time.y * _TextQuadAlphaFbmTimeScale + _TextQuadAlphaFbmPhase);
+                float alphaFbm = saturate(fAlpha * 0.5 + 0.5);
+                alphaFbm = smoothstep(_TextQuadAlphaFbmThreshold, 1.0, alphaFbm);
+
+                half4 col = half4(rgb, _HdrTint.a * (half)alphaFbm);
+                // UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
             }
             ENDCG
