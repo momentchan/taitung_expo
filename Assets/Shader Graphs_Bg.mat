@@ -48,13 +48,16 @@ Material:
     m_Floats:
     - _Contrast: -1.27
     - _Density: 100.33
+    - _Distortion: 0.05
+    - _DistortionFreq: 50
+    - _DistortionStrength: 0.02
     - _Float: 0.01
     - _Float_1: 4.85
     - _Float_2: 0.87
     - _Float_3: -0.02
     - _Grid: 50
     - _Highlights: 1.49
-    - _Intensity: 0.08
+    - _Intensity: -2.47
     - _Invert: 0
     - _LineScale: 1.85
     - _Midtones: 6.15
@@ -62,10 +65,10 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Scale: 2.31
-    - _Thickness: 0.07
+    - _Thickness: 2.1
     - _Threshold: 0.8
     m_Colors:
-    - _GridRange: {r: 1920, g: 50, b: 0, a: 0}
+    - _GridRange: {r: 1920, g: 100, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &235363106316154770

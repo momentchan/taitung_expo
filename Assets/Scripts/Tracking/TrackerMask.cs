@@ -7,8 +7,8 @@ namespace TaitungExpo
     {
         public RenderTexture Mask => mask;
 
-        // Sobel gradient of Mask: signed d/dx,d/dy in RG, magnitude in B. Uses runtime RT if gradientOutput is unset.
-        public RenderTexture MaskGradient => gradientOutput != null ? gradientOutput : ownedGradientOutput;
+        // Smoothed depth map for Parallax occlusion
+        public RenderTexture MaskDepth => depthOutput != null ? depthOutput : ownedDepthOutput;
 
         [SerializeField] private float radius = 0.05f;
         [Tooltip("Multiply last frame mask by this each update before adding new tracker splats (0 clears trails, 1 keeps them indefinitely).")]
@@ -17,35 +17,35 @@ namespace TaitungExpo
         [SerializeField] private RenderTexture mask;
         [SerializeField] private Shader shader;
 
-        [Header("Mask gradient")]
-        [SerializeField] private bool computeMaskGradient = true;
-        [SerializeField] private Shader maskGradientShader;
+        [Header("Mask Depth (Bevel)")]
+        [SerializeField] private bool computeMaskDepth = true;
+        [SerializeField] private Shader maskDepthShader;
         [Tooltip("If unset, a render texture matching the mask is created at runtime.")]
-        [SerializeField] private RenderTexture gradientOutput;
-        [SerializeField] private float gradientScale = 1f;
-        [SerializeField] private float gradientMagnitudeScale = 1f;
+        [SerializeField] private RenderTexture depthOutput;
+        [SerializeField] private float blurRadius = 5f;
+        [SerializeField] private float depthMultiplier = 5f;
 
         private Material mat;
-        private Material gradientMat;
+        private Material depthMat;
         private PingPongRenderTexture pingPong;
-        private RenderTexture ownedGradientOutput;
+        private RenderTexture ownedDepthOutput;
 
         void Awake()
         {
             mat = new Material(shader);
-            if (maskGradientShader != null)
-                gradientMat = new Material(maskGradientShader);
+            if (maskDepthShader != null)
+                depthMat = new Material(maskDepthShader);
         }
 
         void OnDestroy()
         {
             DisposePingPong();
-            ReleaseOwnedGradientOutput();
+            ReleaseOwnedDepthOutput();
 
             if (mat != null)
                 Destroy(mat);
-            if (gradientMat != null)
-                Destroy(gradientMat);
+            if (depthMat != null)
+                Destroy(depthMat);
         }
 
         void Update()
@@ -67,15 +67,15 @@ namespace TaitungExpo
             pingPong.Swap();
             Graphics.Blit(pingPong.Read, mask);
 
-            if (computeMaskGradient && gradientMat != null)
+            if (computeMaskDepth && depthMat != null)
             {
-                EnsureGradientOutput();
-                var target = gradientOutput != null ? gradientOutput : ownedGradientOutput;
+                EnsureDepthOutput();
+                var target = depthOutput != null ? depthOutput : ownedDepthOutput;
                 if (target != null)
                 {
-                    gradientMat.SetFloat("_GradientScale", gradientScale);
-                    gradientMat.SetFloat("_MagnitudeScale", gradientMagnitudeScale);
-                    Graphics.Blit(mask, target, gradientMat);
+                    depthMat.SetFloat("_BlurRadius", blurRadius);
+                    depthMat.SetFloat("_DepthMultiplier", depthMultiplier);
+                    Graphics.Blit(mask, target, depthMat);
                 }
             }
         }
@@ -98,34 +98,34 @@ namespace TaitungExpo
             return r != null && r.width == mask.width && r.height == mask.height && r.format == mask.format;
         }
 
-        void EnsureGradientOutput()
+        void EnsureDepthOutput()
         {
-            if (gradientOutput != null)
+            if (depthOutput != null)
                 return;
 
-            if (ownedGradientOutput != null
-                && ownedGradientOutput.width == mask.width
-                && ownedGradientOutput.height == mask.height
-                && ownedGradientOutput.format == mask.format)
+            if (ownedDepthOutput != null
+                && ownedDepthOutput.width == mask.width
+                && ownedDepthOutput.height == mask.height
+                && ownedDepthOutput.format == mask.format)
                 return;
 
-            ReleaseOwnedGradientOutput();
+            ReleaseOwnedDepthOutput();
 
-            ownedGradientOutput = new RenderTexture(mask.width, mask.height, mask.depth, mask.format)
+            ownedDepthOutput = new RenderTexture(mask.width, mask.height, mask.depth, mask.format)
             {
                 filterMode = FilterMode.Bilinear,
                 wrapMode = TextureWrapMode.Clamp,
-                name = "TrackerMask_Gradient"
+                name = "TrackerMask_Depth"
             };
-            ownedGradientOutput.Create();
+            ownedDepthOutput.Create();
         }
 
-        void ReleaseOwnedGradientOutput()
+        void ReleaseOwnedDepthOutput()
         {
-            if (ownedGradientOutput == null) return;
-            ownedGradientOutput.Release();
-            Destroy(ownedGradientOutput);
-            ownedGradientOutput = null;
+            if (ownedDepthOutput == null) return;
+            ownedDepthOutput.Release();
+            Destroy(ownedDepthOutput);
+            ownedDepthOutput = null;
         }
 
         void DisposePingPong()

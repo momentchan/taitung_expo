@@ -43,6 +43,8 @@ namespace TaitungExpo
 
         void Update()
         {
+            TrySelectSongByNumberKey();
+
             // Detection for Inspector changes during Play Mode
             if (currentSongIndex != playingSongIndex && !isSwitchingSong)
             {
@@ -94,6 +96,36 @@ namespace TaitungExpo
 
             GUILayout.EndScrollView();
             GUILayout.EndArea();
+        }
+
+        // Digit keys match list index: 0–9 on main row or keypad (ignored if out of range or already playing).
+        void TrySelectSongByNumberKey()
+        {
+            if (songsDatabase == null || songsDatabase.songs == null) return;
+            if (!Application.isFocused) return;
+
+            int? index = null;
+            if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
+                index = 0;
+            else
+            {
+                for (int n = 1; n <= 9; n++)
+                {
+                    KeyCode alpha = (KeyCode)((int)KeyCode.Alpha1 + n - 1);
+                    KeyCode keypad = (KeyCode)((int)KeyCode.Keypad1 + n - 1);
+                    if (Input.GetKeyDown(alpha) || Input.GetKeyDown(keypad))
+                    {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+
+            if (index == null) return;
+            int i = index.Value;
+            if (i < 0 || i >= songsDatabase.songs.Count) return;
+            if (isSwitchingSong || i == playingSongIndex) return;
+            _ = ChangeSong(i);
         }
 
         public async Task ChangeSong(int newIndex)
