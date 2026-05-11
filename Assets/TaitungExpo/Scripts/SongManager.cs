@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -35,6 +36,11 @@ namespace TaitungExpo
         private bool isSwitchingSong = false;
         private int playingSongIndex = -1;
         private Vector2 debugUiScroll;
+
+        /// <summary>Set after a full successful load (use for lyrics/UI that enable after startup).</summary>
+        public int LastLoadedSongIndex { get; private set; } = -1;
+
+        public event Action<int> OnSongLoaded;
 
         async void Start()
         {
@@ -159,6 +165,8 @@ namespace TaitungExpo
             await LoadAndPlaySong(currentSongIndex);
             
             isSwitchingSong = false;
+            LastLoadedSongIndex = currentSongIndex;
+            OnSongLoaded?.Invoke(currentSongIndex);
         }
 
         private async Task LoadAndPlaySong(int index)
