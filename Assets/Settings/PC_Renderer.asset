@@ -16,7 +16,7 @@ MonoBehaviour:
   settings:
     renderPassEvent: 550
     blendMaterial: {fileID: 2100000, guid: 6edbdd8eccbc1ac4f8b6bd8f7e5ce8e5, type: 2}
-    blendFactor: 0.911
+    blendFactor: 0.926
 --- !u!114 &-2750090595939029388
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64,8 +64,7 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
   - {fileID: -2750090595939029388}
-  - {fileID: -7027200492465353447}
-  m_RendererFeatureMap: ad6b866f10d7b46c746ee9702cb7d5d9190d2741625e7a9e
+  m_RendererFeatureMap: ad6b866f10d7b46c746ee9702cb7d5d9
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
