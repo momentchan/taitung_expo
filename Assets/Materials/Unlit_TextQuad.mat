@@ -41,17 +41,17 @@ Material:
     - _BloomLargeFbmPhase: 0
     - _BloomLargeFbmScale: 17.69
     - _BloomLargeFbmTime: 0.47
-    - _BloomLargeStrength: 2.79
+    - _BloomLargeStrength: 4
     - _BloomSmallFbmInfluence: 1
     - _BloomSmallFbmPhase: 0
     - _BloomSmallFbmScale: 18.6
     - _BloomSmallFbmTime: 1
-    - _BloomSmallStrength: 2.29
-    - _TextQuadAlphaFbmInfluence: 0.631
-    - _TextQuadAlphaFbmPhase: -0.82
-    - _TextQuadAlphaFbmScale: 4.2
-    - _TextQuadAlphaFbmThreshold: 0.35
-    - _TextQuadAlphaFbmTimeScale: 1.77
+    - _BloomSmallStrength: 4
+    - _TextQuadAlphaFbmInfluence: 1
+    - _TextQuadAlphaFbmPhase: 0.9
+    - _TextQuadAlphaFbmScale: 5
+    - _TextQuadAlphaFbmThreshold: -0.1
+    - _TextQuadAlphaFbmTimeScale: 0.2
     m_Colors:
     - _HdrTint: {r: 0.93333334, g: 0.26995143, b: 0, a: 1}
   m_BuildTextureStacks: []
