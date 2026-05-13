@@ -31,7 +31,7 @@ Shader "Unlit/DitherBitonal"
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-            #include "../Packages/unity-gist/Cginc/Fbm.cginc"
+            #include "../../Packages/unity-gist/Cginc/Fbm.cginc"
 
             struct appdata
             {
@@ -61,22 +61,79 @@ Shader "Unlit/DitherBitonal"
             half _MaskWeight;
             half _MaskRampMid;
 
-            // Same palette as ThermalEffect.hlsl (luminance -> false color).
+            // High-contrast 10-stop thermal (sync with ThermalEffect.hlsl).
             half3 ThermalEffectRGB(half3 InColor)
             {
+                // High-contrast luminance (Rec. 709 luma weights)
                 half lum = dot(InColor, half3(0.299h, 0.587h, 0.114h));
-                half3 c_black = half3(0, 0, 0);
-                half3 c_blue = half3(0, 0.5, 1);
-                half3 c_green = half3(0, 1, 0);
-                half3 c_yellow = half3(1, 1, 0);
-                half3 c_orange = half3(1, 0.5, 0);
-                half3 c_red = half3(1, 0, 0);
-                half3 color = c_black;
-                color = lerp(color, c_blue, saturate(lum * 6.0));
-                color = lerp(color, c_green, saturate((lum - 0.15) * 6.0));
-                color = lerp(color, c_yellow, saturate((lum - 0.45) * 6.0));
-                color = lerp(color, c_orange, saturate((lum - 0.7) * 6.0));
-                return lerp(color, c_red, saturate((lum - 0.9) * 10.0));
+
+                // Contrast mapping: widens mid-tone bands along the ramp
+                half k = 0.15h;
+                half t = (lum / (k + max(lum, 1e-5h))) * (k + 1.0h);
+                t = saturate(pow(t, 0.80h));
+
+                // 10 colors — image_0 reference palette
+                const half3 c0  = half3(0.00h, 0.00h, 0.00h);
+                const half3 c1  = half3(0.01h, 0.00h, 0.03h);
+                const half3 c2  = half3(0.04h, 0.01h, 0.40h);
+                const half3 c3  = half3(0.00h, 0.75h, 1.00h);
+                const half3 c4  = half3(0.00h, 1.00h, 0.20h);
+                const half3 c5  = half3(0.65h, 1.00h, 0.00h);
+                const half3 c6  = half3(1.00h, 1.00h, 0.00h);
+                const half3 c7  = half3(1.00h, 0.60h, 0.00h);
+                const half3 c8  = half3(1.00h, 0.00h, 0.00h);
+                const half3 c9  = half3(1.00h, 0.80h, 0.60h);
+
+                const half seg = 1.0h / 9.0h;
+
+                if (t <= seg * 1.0h) return lerp(c0, c1, smoothstep(0.0h, seg * 1.0h, t));
+                if (t <= seg * 2.0h) return lerp(c1, c2, smoothstep(seg * 1.0h, seg * 2.0h, t));
+                if (t <= seg * 3.0h) return lerp(c2, c3, smoothstep(seg * 2.0h, seg * 3.0h, t));
+                if (t <= seg * 4.0h) return lerp(c3, c4, smoothstep(seg * 3.0h, seg * 4.0h, t));
+                if (t <= seg * 5.0h) return lerp(c4, c5, smoothstep(seg * 4.0h, seg * 5.0h, t));
+                if (t <= seg * 6.0h) return lerp(c5, c6, smoothstep(seg * 5.0h, seg * 6.0h, t));
+                if (t <= seg * 7.0h) return lerp(c6, c7, smoothstep(seg * 6.0h, seg * 7.0h, t));
+                if (t <= seg * 8.0h) return lerp(c7, c8, smoothstep(seg * 7.0h, seg * 8.0h, t));
+                return lerp(c8, c9, smoothstep(seg * 8.0h, 1.0h, t));
+            }
+
+            // Smooth-source thermal with FBM band snapping: exact 10 palette colors, hard-edge stippling between adjacent stops.
+            half3 ThermalEffectDithered(half3 InColor, half noise01, half ditherMix)
+            {
+                half lum = dot(InColor, half3(0.299h, 0.587h, 0.114h));
+                half k = 0.15h;
+                half t = (lum / (k + max(lum, 1e-5h))) * (k + 1.0h);
+                t = saturate(pow(t, 0.80h));
+
+                half scaledT = t * 9.0h;
+                half bandIndex = floor(scaledT);
+                half bandFrac = frac(scaledT);
+
+                half hardStep = step(noise01, bandFrac);
+                half ditheredIndex = clamp(bandIndex + hardStep, 0.0h, 9.0h);
+                half smoothIndex = scaledT;
+                half finalIndex = lerp(smoothIndex, ditheredIndex, saturate(ditherMix));
+
+                const half3 c0  = half3(0.00h, 0.00h, 0.00h);
+                const half3 c1  = half3(0.01h, 0.00h, 0.03h);
+                const half3 c2  = half3(0.04h, 0.01h, 0.40h);
+                const half3 c3  = half3(0.00h, 0.75h, 1.00h);
+                const half3 c4  = half3(0.00h, 1.00h, 0.20h);
+                const half3 c5  = half3(0.65h, 1.00h, 0.00h);
+                const half3 c6  = half3(1.00h, 1.00h, 0.00h);
+                const half3 c7  = half3(1.00h, 0.60h, 0.00h);
+                const half3 c8  = half3(1.00h, 0.00h, 0.00h);
+                const half3 c9  = half3(1.00h, 0.80h, 0.60h);
+
+                if (finalIndex <= 1.0h) return lerp(c0, c1, finalIndex);
+                if (finalIndex <= 2.0h) return lerp(c1, c2, finalIndex - 1.0h);
+                if (finalIndex <= 3.0h) return lerp(c2, c3, finalIndex - 2.0h);
+                if (finalIndex <= 4.0h) return lerp(c3, c4, finalIndex - 3.0h);
+                if (finalIndex <= 5.0h) return lerp(c4, c5, finalIndex - 4.0h);
+                if (finalIndex <= 6.0h) return lerp(c5, c6, finalIndex - 5.0h);
+                if (finalIndex <= 7.0h) return lerp(c6, c7, finalIndex - 6.0h);
+                if (finalIndex <= 8.0h) return lerp(c7, c8, finalIndex - 7.0h);
+                return lerp(c8, c9, finalIndex - 8.0h);
             }
 
             v2f vert (appdata v)
@@ -106,11 +163,11 @@ Shader "Unlit/DitherBitonal"
 
                 half maskRaw = saturate(tex2D(_MaskTex, i.uvMask).r * _MaskWeight);
                 half mid = saturate(_MaskRampMid);
-                // First half of mask: original -> dithered. Second half: that result -> thermal(dithered).
                 half toDither = saturate(maskRaw / mid);
                 half toThermal = saturate((maskRaw - mid) / (1.0 - mid + 1e-4));
                 half3 blended = lerp(rgb, dithered, toDither);
-                half3 thermalOnDither = ThermalEffectRGB(dithered);
+                // Smooth source RGB + same FBM as bitonal dither; _DitherMix blends smooth vs noise-snapped thermal bands.
+                half3 thermalOnDither = ThermalEffectDithered(rgb, n01, _DitherMix);
                 half3 outRgb = lerp(blended, thermalOnDither, toThermal);
 
                 return half4(outRgb, samp.a);
