@@ -2231,6 +2231,7 @@ MonoBehaviour:
   ui: {fileID: 8400000, guid: 8e915e22c47c9f34dba42cef21e5a6c0, type: 2}
   uiBloomSmall: {fileID: 8400000, guid: e5304b365e2ff0c4184ae70512ba1575, type: 2}
   uiBloomLarge: {fileID: 8400000, guid: f172682cd1e9596449e5faff7d235f39, type: 2}
+  frameBlendFactor: 0.918
 --- !u!1 &1331614970
 GameObject:
   m_ObjectHideFlags: 0

@@ -27,6 +27,7 @@ namespace TaitungExpo
 
         [Header("Scene References")]
         [SerializeField] private List<StemAudioZone> audioZones;
+        [SerializeField] private SongLyricRingView[] lyricRingViews;
 
         [Header("Debug")]
         [SerializeField] private bool showDebugUI = true;
@@ -40,7 +41,17 @@ namespace TaitungExpo
         /// <summary>Set after a full successful load (use for lyrics/UI that enable after startup).</summary>
         public int LastLoadedSongIndex { get; private set; } = -1;
 
+        public Songs SongsDatabase => songsDatabase;
+
+        public Song CurrentSong =>
+            songsDatabase != null && songsDatabase.songs != null
+            && LastLoadedSongIndex >= 0
+            && LastLoadedSongIndex < songsDatabase.songs.Count
+                ? songsDatabase.songs[LastLoadedSongIndex]
+                : null;
+
         public event Action<int> OnSongLoaded;
+        public event Action<int, Song> OnSongChanged;
 
         async void Start()
         {
@@ -166,7 +177,20 @@ namespace TaitungExpo
             
             isSwitchingSong = false;
             LastLoadedSongIndex = currentSongIndex;
+            Song loaded = CurrentSong;
             OnSongLoaded?.Invoke(currentSongIndex);
+            OnSongChanged?.Invoke(currentSongIndex, loaded);
+            NotifyLyricViews();
+        }
+
+        void NotifyLyricViews()
+        {
+            if (lyricRingViews == null) return;
+            foreach (var view in lyricRingViews)
+            {
+                if (view != null)
+                    view.SyncToSongManager(this);
+            }
         }
 
         private async Task LoadAndPlaySong(int index)

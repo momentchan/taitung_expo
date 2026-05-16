@@ -21,7 +21,7 @@ public class SongLyricRingView : MonoBehaviour
 
     [Header("Song source")]
     [SerializeField] Songs songDatabase;
-    [Tooltip("Editor / fallback: which song to show when Song Manager is not driving playback.")]
+    [Tooltip("Mirrors the loaded song's type from Song Manager in Play Mode; used alone in Edit Mode when no manager.")]
     [SerializeField] [FormerlySerializedAs("songType")]
     SongType previewSongType = SongType.Song1;
     [Tooltip("When set, Play Mode uses the same song list index as this manager (lyrics match what is playing).")]
@@ -59,21 +59,77 @@ public class SongLyricRingView : MonoBehaviour
 
     void OnEnable()
     {
-        if (songManager != null)
-            songManager.OnSongLoaded += OnSongManagerLoadedSong;
+        BindSongManager();
+        SyncPreviewSongTypeFromManager();
         RefreshRingsFromSong();
     }
 
     void OnDisable()
     {
-        if (songManager != null)
-            songManager.OnSongLoaded -= OnSongManagerLoadedSong;
+        UnbindSongManager();
     }
 
-    void OnSongManagerLoadedSong(int _)
+    void BindSongManager()
     {
+        if (songManager == null) return;
+        songManager.OnSongChanged -= OnSongManagerChanged;
+        songManager.OnSongChanged += OnSongManagerChanged;
+    }
+
+    void UnbindSongManager()
+    {
+        if (songManager == null) return;
+        songManager.OnSongChanged -= OnSongManagerChanged;
+    }
+
+    void OnSongManagerChanged(int _, Song song)
+    {
+        ApplyPreviewSongTypeFromSong(song);
+        InvalidateLyricCache();
         RefreshRingsFromSong();
     }
+
+    /// <summary>Called by <see cref="SongManager"/> after each successful song load.</summary>
+    public void SyncToSongManager(SongManager manager)
+    {
+        if (manager == null) return;
+        if (songManager != manager)
+        {
+            UnbindSongManager();
+            songManager = manager;
+            BindSongManager();
+        }
+        if (manager.SongsDatabase != null)
+            songDatabase = manager.SongsDatabase;
+        ApplyPreviewSongTypeFromSong(manager.CurrentSong);
+        InvalidateLyricCache();
+        RefreshRingsFromSong();
+    }
+
+    void SyncPreviewSongTypeFromManager()
+    {
+        if (!Application.isPlaying || songManager == null) return;
+        ApplyPreviewSongTypeFromSong(songManager.CurrentSong);
+    }
+
+    void ApplyPreviewSongTypeFromSong(Song song)
+    {
+        if (song == null) return;
+        previewSongType = song.type;
+    }
+
+    void InvalidateLyricCache()
+    {
+        _lastSongDatabase = null;
+        _cachedPlaybackListIndex = NoManagedPlaybackIndex;
+        _lyricsTextSnapshot.Clear();
+        _ringObjectCount = 0;
+    }
+
+    Songs ActiveSongDatabase =>
+        songManager != null && songManager.SongsDatabase != null
+            ? songManager.SongsDatabase
+            : songDatabase;
 
     void OnValidate()
     {
@@ -114,7 +170,8 @@ public class SongLyricRingView : MonoBehaviour
     /// <summary>Rebuilds ring GameObjects if lyrics changed; always updates TMP text and layout.</summary>
     void RefreshRingsFromSong()
     {
-        if (songDatabase == null || songDatabase.songs == null) return;
+        var db = ActiveSongDatabase;
+        if (db == null || db.songs == null) return;
 
         if (!TryResolveSongForLyrics(out var song) || song.lyrics == null)
             return;
@@ -150,9 +207,10 @@ public class SongLyricRingView : MonoBehaviour
     {
         song = null;
         int listIdx = GetPlaybackListIndexIfAny();
+        var db = ActiveSongDatabase;
         if (listIdx != NoManagedPlaybackIndex)
         {
-            song = songDatabase.songs[listIdx];
+            song = db.songs[listIdx];
             return song != null;
         }
 
@@ -161,11 +219,12 @@ public class SongLyricRingView : MonoBehaviour
 
     int GetPlaybackListIndexIfAny()
     {
-        if (!Application.isPlaying || songManager == null || songDatabase == null || songDatabase.songs == null)
+        var db = ActiveSongDatabase;
+        if (!Application.isPlaying || songManager == null || db == null || db.songs == null)
             return NoManagedPlaybackIndex;
 
         int idx = songManager.LastLoadedSongIndex;
-        if (idx >= 0 && idx < songDatabase.songs.Count)
+        if (idx >= 0 && idx < db.songs.Count)
             return idx;
 
         return NoManagedPlaybackIndex;
@@ -174,11 +233,13 @@ public class SongLyricRingView : MonoBehaviour
     bool TryFindSongByPreviewType(out Song song)
     {
         song = null;
-        for (int i = 0; i < songDatabase.songs.Count; i++)
+        var db = ActiveSongDatabase;
+        if (db == null || db.songs == null) return false;
+        for (int i = 0; i < db.songs.Count; i++)
         {
-            if (songDatabase.songs[i].type == previewSongType)
+            if (db.songs[i].type == previewSongType)
             {
-                song = songDatabase.songs[i];
+                song = db.songs[i];
                 return true;
             }
         }
@@ -189,7 +250,8 @@ public class SongLyricRingView : MonoBehaviour
     bool ShouldRebuildRingObjects(IReadOnlyList<string> lyrics)
     {
         int playbackListIdx = GetPlaybackListIndexIfAny();
-        if (_lastSongDatabase != songDatabase || _lastPreviewSongType != previewSongType || playbackListIdx != _cachedPlaybackListIndex)
+        var db = ActiveSongDatabase;
+        if (_lastSongDatabase != db || _lastPreviewSongType != previewSongType || playbackListIdx != _cachedPlaybackListIndex)
             return true;
         if (lyrics.Count != _ringObjectCount)
             return true;
@@ -205,7 +267,7 @@ public class SongLyricRingView : MonoBehaviour
 
     void StoreLyricsSnapshot(IReadOnlyList<string> lyrics)
     {
-        _lastSongDatabase = songDatabase;
+        _lastSongDatabase = ActiveSongDatabase;
         _lastPreviewSongType = previewSongType;
         _cachedPlaybackListIndex = GetPlaybackListIndexIfAny();
         _ringObjectCount = lyrics.Count;
