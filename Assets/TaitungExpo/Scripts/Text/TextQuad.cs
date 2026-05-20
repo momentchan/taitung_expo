@@ -1,7 +1,13 @@
 using UnityEngine;
 
-public class TextQuad : MonoBehaviour
+namespace TaitungExpo
 {
+    /// <summary>
+    /// Composites UI + bloom textures through <c>Unlit/TextQuad</c> into <see cref="output"/>,
+    /// with optional frame-blend history.
+    /// </summary>
+    public class TextQuad : MonoBehaviour
+    {
     [SerializeField] private Material material;
     [Tooltip("Composite (UI + blooms + optional frame blend) is written here each frame.")]
     [SerializeField] private RenderTexture output;
@@ -105,5 +111,6 @@ public class TextQuad : MonoBehaviour
             _history = null;
         }
         _historyValid = false;
+    }
     }
 }

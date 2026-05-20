@@ -68,6 +68,14 @@ public class CircularTextMeshPro : MonoBehaviour
     }
 #endif
 
+    /// <summary>Re-applies the circular mesh deformation (call after text/layout changes or before baking offline).</summary>
+    public void RefreshCurve()
+    {
+        if (m_TextComponent == null) m_TextComponent = GetComponent<TMP_Text>();
+        if (m_TextComponent == null) return;
+        UpdateTextCurve();
+    }
+
     void UpdateTextCurve()
     {
         if (radius == 0) return;
