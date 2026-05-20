@@ -31,16 +31,16 @@ Material:
         m_Texture: {fileID: 8400000, guid: e5304b365e2ff0c4184ae70512ba1575, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _DepthMap:
+        m_Texture: {fileID: 8400000, guid: f1e413a73f1480340b0db17c8035000e, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _HistoryTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 8400000, guid: 8e915e22c47c9f34dba42cef21e5a6c0, type: 2}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _UvDistortMask:
-        m_Texture: {fileID: 8400000, guid: 876001dcbc6302d43803ca82d5392101, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
@@ -55,6 +55,8 @@ Material:
     - _BloomSmallFbmScale: 18.6
     - _BloomSmallFbmTime: 1
     - _BloomSmallStrength: 0.27
+    - _DepthRangeMax: 1
+    - _DepthRangeMin: 0
     - _FrameBlendFactor: 0.918
     - _FrameBlendHistoryValid: 1
     - _TextQuadAlphaFbmInfluence: 1
@@ -64,10 +66,11 @@ Material:
     - _TextQuadAlphaFbmTimeScale: 0.2
     - _TrackerDistortSampleScale: 5
     - _UvDistortFbmPhase: 0
+    - _UvDistortFbmPhaseOffset: 1.7
     - _UvDistortFbmScale: 2
     - _UvDistortFbmTime: 0.2
+    - _UvDistortStrength: 0.16
     m_Colors:
     - _HdrTint: {r: 9.189589, g: 2.64512, b: 0, a: 1}
-    - _UvDistortStrength: {r: 0.01, g: 0.01, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

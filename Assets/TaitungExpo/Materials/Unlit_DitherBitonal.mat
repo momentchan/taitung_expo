@@ -23,25 +23,27 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _DepthMap:
+        m_Texture: {fileID: 8400000, guid: f1e413a73f1480340b0db17c8035000e, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 8400000, guid: 399251e6cdde7a3499cd9e1bbebefbce, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _MaskTex:
-        m_Texture: {fileID: 8400000, guid: 876001dcbc6302d43803ca82d5392101, type: 2}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _DepthRangeMax: 1
+    - _DepthRangeMin: 0
+    - _DepthSplit: 0.5
     - _DitherMix: 1
     - _FbmPhase: 0
-    - _FbmScale: 145.75
+    - _FbmScale: 84.8
     - _FbmTimeScale: 1.7
-    - _HighlightScale: 1
+    - _HighlightScale: 1.134
     - _LumaBias: -0.124
-    - _MaskRampMid: 0.5
     - _MaskWeight: 1
-    - _ShadowScale: 0.036
+    - _ShadowScale: 0.218
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

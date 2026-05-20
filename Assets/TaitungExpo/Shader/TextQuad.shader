@@ -23,9 +23,12 @@ Shader "Unlit/TextQuad"
         [Header(Final)]
         [HDR] _HdrTint ("HDR Tint", Color) = (1,1,1,1)
 
-        [Header(Tracker depth UV distort)]
-        _UvDistortStrength ("Tracker UV Distort Strength", Vector) = (0.02, 0.02, 0, 0)
-        _UvDistortFbmScale ("Distort FBM Scale (G channel)", Float) = 4
+        [Header(Depth UV distort)]
+        _DepthMap ("Depth Map", 2D) = "white" {}
+        _DepthRangeMin ("Depth Range Min", Range(0, 1)) = 0
+        _DepthRangeMax ("Depth Range Max", Range(0, 1)) = 1
+        _UvDistortStrength ("UV Distort Strength", Float) = 0.02
+        _UvDistortFbmScale ("Distort FBM Scale", Float) = 4
         _UvDistortFbmTime ("Distort FBM Time Scale", Float) = 0.2
         _UvDistortFbmPhase ("Distort FBM Phase", Float) = 0
 
@@ -68,7 +71,7 @@ Shader "Unlit/TextQuad"
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                float4 screenPos : TEXCOORD1;
+                float2 uvDepth : TEXCOORD1;
                 UNITY_FOG_COORDS(2)
                 float4 vertex : SV_POSITION;
             };
@@ -93,9 +96,11 @@ Shader "Unlit/TextQuad"
 
             half4 _HdrTint;
 
-            // Set by TrackerMask via Shader.SetGlobalTexture (beveled depth, grayscale in R).
-            sampler2D _TrackerDepthMask;
-            float4 _UvDistortStrength;
+            sampler2D _DepthMap;
+            float4 _DepthMap_ST;
+            half _DepthRangeMin;
+            half _DepthRangeMax;
+            float _UvDistortStrength;
             float _UvDistortFbmScale;
             float _UvDistortFbmTime;
             float _UvDistortFbmPhase;
@@ -115,29 +120,31 @@ Shader "Unlit/TextQuad"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.screenPos = ComputeScreenPos(o.vertex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
+                o.uvDepth = TRANSFORM_TEX(v.uv, _DepthMap);
+                UNITY_TRANSFER_FOG(o, o.vertex);
                 return o;
             }
 
-            // Flow-map style: (RG - 0.5) * 2. R = tracker depth; G = FBM (depth mask is grayscale so .rg was always diagonal).
-            float2 DistortedContentUv(float2 baseUv, float4 screenPos)
+            // FBM UV offset, scaled by normalized depth (no distort where depth is empty).
+            float2 DistortedContentUv(float2 baseUv, float2 uvDepth)
             {
-                float2 uvMask = screenPos.xy / max(screenPos.w, 1e-5);
+                half depthRaw = tex2D(_DepthMap, uvDepth).r;
+                half depthSpan = max(_DepthRangeMax - _DepthRangeMin, 1e-4h);
+                half depth = saturate((depthRaw - _DepthRangeMin) / depthSpan);
 
-                half2 m;
-                m.r = tex2D(_TrackerDepthMask, uvMask).r;
-                float fG = fbm2(uvMask * _UvDistortFbmScale, _Time.y * _UvDistortFbmTime + _UvDistortFbmPhase);
-                m.g = saturate(fG * 0.5 + 0.5);
+                float2 uvF = baseUv * _UvDistortFbmScale;
+                float t = _Time.y * _UvDistortFbmTime + _UvDistortFbmPhase;
+                float fX = fbm2(uvF, t);
+                float fY = fbm2(uvF, t + 16.8);
+                half2 fbm01 = saturate(half2(fX, fY) * 0.5h + 0.5h);
+                half2 distort = (fbm01 - 0.5) * 2.0 * depth;
 
-                half2 delta = (m - 0.5h) * 2.0h;
-                float2 s = float2(_UvDistortStrength.x, _UvDistortStrength.y);
-                return saturate(baseUv + float2(delta.x * s.x, delta.y * s.y));
+                return saturate(baseUv + distort * _UvDistortStrength);
             }
 
             half4 frag (v2f i) : SV_Target
             {
-                float2 uvC = DistortedContentUv(i.uv, i.screenPos);
+                float2 uvC = DistortedContentUv(i.uv, i.uvDepth);
 
                 half4 ui = tex2D(_MainTex, uvC);
                 half4 bloomSmall = tex2D(_BloomSmallTex, uvC);

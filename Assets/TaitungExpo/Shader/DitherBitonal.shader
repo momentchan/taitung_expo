@@ -3,7 +3,10 @@ Shader "Unlit/DitherBitonal"
     Properties
     {
         _MainTex ("Source", 2D) = "white" {}
-        _MaskTex ("Dither Mask", 2D) = "white" {}
+        _DepthMap ("Depth Map", 2D) = "white" {}
+        [Header(Depth range)]
+        _DepthRangeMin ("Depth Range Min", Range(0, 1)) = 0
+        _DepthRangeMax ("Depth Range Max", Range(0, 1)) = 1
 
         [Header(Tone from source color)]
         _ShadowScale ("Dither Dark Scale", Range(0, 1)) = 0.35
@@ -15,9 +18,8 @@ Shader "Unlit/DitherBitonal"
         _FbmPhase ("FBM Phase", Float) = 0
         _LumaBias ("Luma Bias", Range(-0.5, 0.5)) = 0
         _DitherMix ("Dither Mix (0 smooth, 1 hard)", Range(0, 1)) = 1
-        _MaskWeight ("Mask Strength", Range(0, 1)) = 1
-        [Header(Mask ramp)]
-        _MaskRampMid ("Mask Mid (dither and thermal split)", Range(0.01, 0.99)) = 0.5
+        [Header(Depth effect split)]
+        _DepthSplit ("Dither / Thermal Split", Range(0.01, 0.99)) = 0.5
     }
     SubShader
     {
@@ -42,14 +44,14 @@ Shader "Unlit/DitherBitonal"
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                float2 uvMask : TEXCOORD1;
+                float2 uvDepth : TEXCOORD1;
                 float4 vertex : SV_POSITION;
             };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            sampler2D _MaskTex;
-            float4 _MaskTex_ST;
+            sampler2D _DepthMap;
+            float4 _DepthMap_ST;
 
             half _ShadowScale;
             half _HighlightScale;
@@ -58,8 +60,9 @@ Shader "Unlit/DitherBitonal"
             float _FbmPhase;
             half _LumaBias;
             half _DitherMix;
-            half _MaskWeight;
-            half _MaskRampMid;
+            half _DepthRangeMin;
+            half _DepthRangeMax;
+            half _DepthSplit;
 
             // High-contrast 10-stop thermal (sync with ThermalEffect.hlsl).
             half3 ThermalEffectRGB(half3 InColor)
@@ -141,15 +144,14 @@ Shader "Unlit/DitherBitonal"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.uvMask = TRANSFORM_TEX(v.uv, _MaskTex);
+                o.uvDepth = TRANSFORM_TEX(v.uv, _DepthMap);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                half4 samp = tex2D(_MainTex, i.uv);
-                half3 rgb = samp.rgb;
-                half lum01 = saturate(dot(rgb, half3(0.299h, 0.587h, 0.114h)) + _LumaBias);
+                half3 col = tex2D(_MainTex, i.uv).rgb;
+                half lum01 = saturate(dot(col, half3(0.299h, 0.587h, 0.114h)) + _LumaBias);
 
                 float f = fbm2(i.uv * _FbmScale, _Time.y * _FbmTimeScale + _FbmPhase);
                 half n01 = saturate((half)f * 0.5h + 0.5h);
@@ -157,20 +159,22 @@ Shader "Unlit/DitherBitonal"
                 // Light pixel where luminance exceeds the per-pixel noise threshold (organic dither).
                 half hardBit = step(n01, lum01);
                 half t = lerp(lum01, hardBit, saturate(_DitherMix));
-                half3 darkC = rgb * _ShadowScale;
-                half3 lightC = rgb * _HighlightScale;
+                half3 darkC = col * _ShadowScale;
+                half3 lightC = col * _HighlightScale;
                 half3 dithered = lerp(darkC, lightC, t);
 
-                half maskRaw = saturate(tex2D(_MaskTex, i.uvMask).r * _MaskWeight);
-                half mid = saturate(_MaskRampMid);
-                half toDither = saturate(maskRaw / mid);
-                half toThermal = saturate((maskRaw - mid) / (1.0 - mid + 1e-4));
-                half3 blended = lerp(rgb, dithered, toDither);
+                half depthSample = tex2D(_DepthMap, i.uvDepth).r;
+                half depthSpan = max(_DepthRangeMax - _DepthRangeMin, 1e-4h);
+                half depthRaw = saturate((depthSample - _DepthRangeMin) / depthSpan);
+
+                half toDither = saturate(depthRaw / _DepthSplit);
+                half toThermal = saturate((depthRaw - _DepthSplit) / (1.0 - _DepthSplit + 1e-4));
+                half3 blended = lerp(col, dithered, toDither);
                 // Smooth source RGB + same FBM as bitonal dither; _DitherMix blends smooth vs noise-snapped thermal bands.
-                half3 thermalOnDither = ThermalEffectDithered(rgb, n01, _DitherMix);
+                half3 thermalOnDither = ThermalEffectDithered(col, n01, _DitherMix);
                 half3 outRgb = lerp(blended, thermalOnDither, toThermal);
 
-                return half4(outRgb, samp.a);
+                return half4(outRgb, 1);
             }
             ENDCG
         }
