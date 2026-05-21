@@ -89,26 +89,22 @@ namespace TaitungExpo
         {
             if (songsDatabase == null || songsDatabase.songs == null) return;
             if (!Application.isFocused) return;
+            if (!Input.GetKey(KeyCode.LeftShift)) return;
 
-            int? index = null;
-            if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
-                index = 0;
-            else
+            int? songIndex = null;
+            for (int key = 1; key <= 8; key++)
             {
-                for (int n = 1; n <= 9; n++)
+                KeyCode alpha = (KeyCode)((int)KeyCode.Alpha1 + key - 1);
+                KeyCode keypad = (KeyCode)((int)KeyCode.Keypad1 + key - 1);
+                if (Input.GetKeyDown(alpha) || Input.GetKeyDown(keypad))
                 {
-                    KeyCode alpha = (KeyCode)((int)KeyCode.Alpha1 + n - 1);
-                    KeyCode keypad = (KeyCode)((int)KeyCode.Keypad1 + n - 1);
-                    if (Input.GetKeyDown(alpha) || Input.GetKeyDown(keypad))
-                    {
-                        index = n;
-                        break;
-                    }
+                    songIndex = key - 1;
+                    break;
                 }
             }
 
-            if (index == null) return;
-            int i = index.Value;
+            if (songIndex == null) return;
+            int i = songIndex.Value;
             if (i < 0 || i >= songsDatabase.songs.Count) return;
             if (isSwitchingSong || i == playingSongIndex) return;
             _ = ChangeSong(i);

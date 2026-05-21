@@ -34,16 +34,16 @@ Material:
     m_Ints: []
     m_Floats:
     - _DepthRangeMax: 1
-    - _DepthRangeMin: 0
+    - _DepthRangeMin: 0.371
     - _DepthSplit: 0.5
     - _DitherMix: 1
     - _FbmPhase: 0
     - _FbmScale: 84.8
     - _FbmTimeScale: 1.7
-    - _HighlightScale: 1.134
+    - _HighlightScale: 1.47
     - _LumaBias: -0.124
     - _MaskWeight: 1
-    - _ShadowScale: 0.218
+    - _ShadowScale: 0.052
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

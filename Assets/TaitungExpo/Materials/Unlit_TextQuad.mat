@@ -56,7 +56,7 @@ Material:
     - _BloomSmallFbmTime: 1
     - _BloomSmallStrength: 0.27
     - _DepthRangeMax: 1
-    - _DepthRangeMin: 0
+    - _DepthRangeMin: 0.32
     - _FrameBlendFactor: 0.918
     - _FrameBlendHistoryValid: 1
     - _TextQuadAlphaFbmInfluence: 1
@@ -69,7 +69,7 @@ Material:
     - _UvDistortFbmPhaseOffset: 1.7
     - _UvDistortFbmScale: 2
     - _UvDistortFbmTime: 0.2
-    - _UvDistortStrength: 0.16
+    - _UvDistortStrength: 0.2
     m_Colors:
     - _HdrTint: {r: 9.189589, g: 2.64512, b: 0, a: 1}
   m_BuildTextureStacks: []
