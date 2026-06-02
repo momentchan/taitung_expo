@@ -171,7 +171,7 @@ Shader "Unlit/DitherBitonal"
                 half toThermal = saturate((depthRaw - _DepthSplit) / (1.0 - _DepthSplit + 1e-4));
                 half3 blended = lerp(col, dithered, toDither);
                 // Smooth source RGB + same FBM as bitonal dither; _DitherMix blends smooth vs noise-snapped thermal bands.
-                half3 thermalOnDither = ThermalEffectDithered(col, n01, _DitherMix);
+                half3 thermalOnDither = ThermalEffectRGB(col);
                 half3 outRgb = lerp(blended, thermalOnDither, toThermal);
 
                 return half4(outRgb, 1);

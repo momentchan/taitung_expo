@@ -2,13 +2,38 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Osc;
+using PrefsGUI;
+using PrefsGUI.RapidGUI;
 using UnityEngine;
 using mj.gist;
 
 namespace TaitungExpo
 {
-    public class TrackerManager : SingletonMonoBehaviour<TrackerManager>
+    public class TrackerManager : SingletonMonoBehaviour<TrackerManager>, IGUIUser
     {
+        #region IGUIUser
+
+        public string GetName() => "Tracker";
+
+        public void ShowGUI()
+        {
+            depthRangeMin.DoGUISlider(0f, 1f, "Depth Range Min");
+            depthRangeMax.DoGUISlider(0f, 1f, "Depth Range Max");
+        }
+
+        public void SetupGUI()
+        {
+            if (depthRangeMin != null)
+                return;
+
+            depthRangeMin = new PrefsFloat($"{GetName()}_depthRangeMin", 0f);
+            depthRangeMax = new PrefsFloat($"{GetName()}_depthRangeMax", 1f);
+        }
+
+        #endregion
+
+        private PrefsFloat depthRangeMin;
+        private PrefsFloat depthRangeMax;
         [SerializeField] private int trackerNum = 20;
         [SerializeField] private float distanceThreshold = 0.1f;
         [SerializeField] private bool mouseUpdate = true;
@@ -49,8 +74,8 @@ namespace TaitungExpo
             {
                 var msg = c.message;
                 var pos = new Vector2(Mathf.Clamp01((float)msg.data[0]), Mathf.Clamp01((float)msg.data[1]));
-                var depth = (float)msg.data[2];
-                UpdateTrackerData(pos, depth);
+                var depthRaw = (float)msg.data[2];
+                UpdateTrackerData(pos, RemapDepth(depthRaw));
             }
             catch (Exception e)
             {
@@ -58,9 +83,18 @@ namespace TaitungExpo
             }
         }
 
+        float RemapDepth(float raw)
+        {
+            float min = depthRangeMin != null ? depthRangeMin : 0f;
+            float max = depthRangeMax != null ? depthRangeMax : 1f;
+            float span = Mathf.Max(max - min, 1e-4f);
+            return Mathf.Clamp01((raw - min) / span);
+        }
+
         protected override void Awake()
         {
             base.Awake();
+            SetupGUI();
             Trackers = new TrackerData[TotalTrackerNum];
             TrackerBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, TotalTrackerNum, Marshal.SizeOf(typeof(TrackerData)));
         }

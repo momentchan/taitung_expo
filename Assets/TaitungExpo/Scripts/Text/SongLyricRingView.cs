@@ -51,9 +51,14 @@ public class SongLyricRingView : MonoBehaviour
 
     bool _editorSyncScheduled;
 
+    bool ShouldRunEditorRingPreview =>
+        !Application.isPlaying && isActiveAndEnabled && gameObject.activeInHierarchy;
+
     void OnEnable()
     {
         if (Application.isPlaying)
+            return;
+        if (!ShouldRunEditorRingPreview)
             return;
 
         BindSongManager();
@@ -64,6 +69,10 @@ public class SongLyricRingView : MonoBehaviour
     void OnDisable()
     {
         UnbindSongManager();
+#if UNITY_EDITOR
+        EditorApplication.delayCall -= RunEditorDeferredRefresh;
+        _editorSyncScheduled = false;
+#endif
     }
 
     void BindSongManager()
@@ -81,6 +90,9 @@ public class SongLyricRingView : MonoBehaviour
 
     void OnSongManagerChanged(int _, Song song)
     {
+        if (!ShouldRunEditorRingPreview)
+            return;
+
         ApplyPreviewSongTypeFromSong(song);
         InvalidateLyricCache();
         RefreshRingsFromSong();
@@ -98,6 +110,9 @@ public class SongLyricRingView : MonoBehaviour
         }
         if (manager.SongsDatabase != null)
             songDatabase = manager.SongsDatabase;
+        if (!ShouldRunEditorRingPreview)
+            return;
+
         ApplyPreviewSongTypeFromSong(manager.CurrentSong);
         InvalidateLyricCache();
         RefreshRingsFromSong();
@@ -133,6 +148,8 @@ public class SongLyricRingView : MonoBehaviour
         innerRadius = Mathf.Min(innerRadius, outerRadius);
         if (Application.isPlaying)
             return;
+        if (!ShouldRunEditorRingPreview)
+            return;
 
 #if UNITY_EDITOR
         if (_editorSyncScheduled) return;
@@ -148,6 +165,9 @@ public class SongLyricRingView : MonoBehaviour
     {
         _editorSyncScheduled = false;
         if (this == null) return;
+        if (!ShouldRunEditorRingPreview)
+            return;
+
         RefreshRingsFromSong();
     }
 #endif
@@ -156,6 +176,8 @@ public class SongLyricRingView : MonoBehaviour
     public void ForceFullRebuild()
     {
         if (Application.isPlaying)
+            return;
+        if (!ShouldRunEditorRingPreview)
             return;
 
         _lastSongDatabase = null;
@@ -298,6 +320,8 @@ public class SongLyricRingView : MonoBehaviour
     {
         if (Application.isPlaying)
             return;
+        if (!ShouldRunEditorRingPreview)
+            return;
 
         var db = ActiveSongDatabase;
         if (db == null || db.songs == null) return;
@@ -429,10 +453,14 @@ public class SongLyricRingView : MonoBehaviour
                     }
                     else if (PrefabUtility.IsPartOfPrefabInstance(existing.gameObject))
                     {
-                        PrefabUtility.UnpackPrefabInstance(
-                            existing.gameObject,
-                            PrefabUnpackMode.Completely,
-                            InteractionMode.AutomatedAction);
+                        var instanceRoot = PrefabUtility.GetNearestPrefabInstanceRoot(existing.gameObject);
+                        if (instanceRoot != null)
+                        {
+                            PrefabUtility.UnpackPrefabInstance(
+                                instanceRoot,
+                                PrefabUnpackMode.Completely,
+                                InteractionMode.AutomatedAction);
+                        }
                     }
                 }
 #endif
