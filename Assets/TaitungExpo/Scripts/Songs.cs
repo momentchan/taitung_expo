@@ -7,6 +7,9 @@ public class Song
 {
     public SongType type;
 
+    // Display title from CSV column B (e.g. "給情人的紀念品").
+    public string songName;
+
     public AssetReferenceT<AudioClip> origin;
     public AssetReferenceT<AudioClip> vocal;
     public AssetReferenceT<AudioClip> chord;
@@ -14,10 +17,31 @@ public class Song
     public AssetReferenceT<AudioClip> hidrums;
     public AssetReferenceT<AudioClip> lowdrums;
 
-    // Filming / material video filename from CSV column C only (zero-based field index 2).
+    // Filming / material video filename from CSV column D (zero-based index 3).
     public string videoFileName;
 
-    public List<string> lyrics;
+    [TextArea(3, 20)]
+    public string lyrics;
+
+    public bool HasLyrics => !string.IsNullOrWhiteSpace(lyrics);
+
+    /// <summary>Splits stored lyrics on line breaks for ring-per-line display.</summary>
+    public string[] GetLyricLines()
+    {
+        if (string.IsNullOrWhiteSpace(lyrics))
+            return Array.Empty<string>();
+
+        var normalized = lyrics.Replace("\r\n", "\n").Replace('\r', '\n');
+        var parts = normalized.Split('\n');
+        var lines = new List<string>(parts.Length);
+        foreach (var part in parts)
+        {
+            var trimmed = part.Trim();
+            if (trimmed.Length > 0)
+                lines.Add(trimmed);
+        }
+        return lines.ToArray();
+    }
 }
 
 public enum SongType

@@ -37,29 +37,31 @@ namespace TaitungExpo
 
             for (int i = 0; i < rows.Count; i++)
             {
-                if (rows[i].Length < 2) continue; // Skip invalid rows
+                // A=stem key, B=song name, C=lyrics, D=video (optional)
+                if (rows[i].Length < 3) continue;
 
-                string songName = rows[i][0].Trim();
-                string rawLyrics = rows[i][1].Trim();
-                // Column C → index 2
-                string videoName = rows[i].Length > 2 && rows[i][2] != null ? rows[i][2].Trim() : "";
+                string stemSearchKey = rows[i][0].Trim();
+                string displayName = rows[i][1].Trim();
+                string rawLyrics = rows[i][2].Trim();
+                string videoName = rows[i].Length > 3 && rows[i][3] != null ? rows[i][3].Trim() : "";
 
                 Song newSong = new Song();
 
                 // Map row index to SongType Enum
                 newSong.type = (SongType)i;
+                newSong.songName = displayName;
 
-                // Parse lyrics by new lines
-                newSong.lyrics = new List<string>(rawLyrics.Split(new[] { "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries));
+                // Keep CSV lyrics as one string; line breaks are preserved for ring splitting at display time.
+                newSong.lyrics = NormalizeLyrics(rawLyrics);
                 newSong.videoFileName = videoName;
 
-                // 4. Auto-link Addressable stems by searching filenames
-                newSong.origin = FindStemReference(songName, "示意原曲");
-                newSong.vocal = FindStemReference(songName, "Vocal");
-                newSong.chord = FindStemReference(songName, "Chords");
-                newSong.bass = FindStemReference(songName, "Bass");
-                newSong.hidrums = FindStemReference(songName, "hi-Drums");
-                newSong.lowdrums = FindStemReference(songName, "lo-Drums");
+                // 4. Auto-link Addressable stems by searching filenames (column A prefix, e.g. "01 給情人的紀念品")
+                newSong.origin = FindStemReference(stemSearchKey, "示意原曲");
+                newSong.vocal = FindStemReference(stemSearchKey, "Vocal");
+                newSong.chord = FindStemReference(stemSearchKey, "Chords");
+                newSong.bass = FindStemReference(stemSearchKey, "Bass");
+                newSong.hidrums = FindStemReference(stemSearchKey, "hi-Drums");
+                newSong.lowdrums = FindStemReference(stemSearchKey, "lo-Drums");
 
                 songsSO.songs.Add(newSong);
             }
@@ -68,6 +70,14 @@ namespace TaitungExpo
             EditorUtility.SetDirty(songsSO);
             AssetDatabase.SaveAssets();
             Debug.Log("CSV parsed and Addressable AudioClips linked successfully.");
+        }
+
+        static string NormalizeLyrics(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+                return string.Empty;
+
+            return raw.Replace("\r\n", "\n").Replace('\r', '\n').Trim();
         }
 
         private static AssetReferenceT<AudioClip> FindStemReference(string baseName, string suffix)

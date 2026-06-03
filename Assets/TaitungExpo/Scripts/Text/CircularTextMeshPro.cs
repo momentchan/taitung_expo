@@ -7,12 +7,14 @@ public class CircularTextMeshPro : MonoBehaviour
 {
     public float radius = 100f;
     public float angleOffset = 0f;
+    public bool invertRadialOrientation = false;
     
     private TMP_Text m_TextComponent;
     private bool _isUpdating = false;
 
     private float _prevRadius;
     private float _prevAngle;
+    private bool _prevInvertRadialOrientation;
 
     void Awake()
     {
@@ -24,6 +26,7 @@ public class CircularTextMeshPro : MonoBehaviour
         TMPro_EventManager.TEXT_CHANGED_EVENT.Add(ON_TEXT_CHANGED);
         _prevRadius = radius;
         _prevAngle = angleOffset;
+        _prevInvertRadialOrientation = invertRadialOrientation;
     }
 
     void OnDisable()
@@ -48,11 +51,13 @@ public class CircularTextMeshPro : MonoBehaviour
         if (m_TextComponent == null) return;
 
         bool customParamsChanged = (radius != _prevRadius || angleOffset != _prevAngle);
+        customParamsChanged |= invertRadialOrientation != _prevInvertRadialOrientation;
 
         if ((m_TextComponent.havePropertiesChanged || customParamsChanged) && !_isUpdating)
         {
             _prevRadius = radius;
             _prevAngle = angleOffset;
+            _prevInvertRadialOrientation = invertRadialOrientation;
             UpdateTextCurve();
         }
     }
@@ -64,6 +69,7 @@ public class CircularTextMeshPro : MonoBehaviour
         if (m_TextComponent == null) return;
         _prevRadius = radius;
         _prevAngle = angleOffset;
+        _prevInvertRadialOrientation = invertRadialOrientation;
         if (!Application.isPlaying && !_isUpdating) UpdateTextCurve();
     }
 #endif
@@ -106,23 +112,27 @@ public class CircularTextMeshPro : MonoBehaviour
                 if (sourceVertices == null || vertexIndex + 3 >= sourceVertices.Length) continue;
 
                 Vector3 center = (sourceVertices[vertexIndex + 0] + sourceVertices[vertexIndex + 2]) / 2f;
+                Vector3 pivot = invertRadialOrientation
+                    ? GetLineCenterPivot(textInfo, charInfo, center)
+                    : center;
 
-                float angleRad = (center.x / radius) + (angleOffset * Mathf.Deg2Rad);
+                float angleRad = (pivot.x / radius) + (angleOffset * Mathf.Deg2Rad);
                 float sin = Mathf.Sin(angleRad);
                 float cos = Mathf.Cos(angleRad);
  
-                Vector3 newCenter = new Vector3(
-                    sin * (center.y + radius), 
-                    cos * (center.y + radius), 
+                Vector3 newPivot = new Vector3(
+                    sin * (pivot.y + radius), 
+                    cos * (pivot.y + radius), 
                     0
                 );
 
-                Quaternion rotation = Quaternion.Euler(0, 0, -angleRad * Mathf.Rad2Deg);
+                float radialOrientationOffset = invertRadialOrientation ? 180f : 0f;
+                Quaternion rotation = Quaternion.Euler(0, 0, radialOrientationOffset - angleRad * Mathf.Rad2Deg);
 
                 for (int j = 0; j < 4; j++)
                 {
-                    Vector3 offset = sourceVertices[vertexIndex + j] - center;
-                    sourceVertices[vertexIndex + j] = newCenter + rotation * offset;
+                    Vector3 offset = sourceVertices[vertexIndex + j] - pivot;
+                    sourceVertices[vertexIndex + j] = newPivot + rotation * offset;
                 } 
             }
 
@@ -140,6 +150,17 @@ public class CircularTextMeshPro : MonoBehaviour
         {
             _isUpdating = false; 
         }
+    }
+
+    static Vector3 GetLineCenterPivot(TMP_TextInfo textInfo, TMP_CharacterInfo charInfo, Vector3 characterCenter)
+    {
+        int lineNumber = charInfo.lineNumber;
+        if (lineNumber < 0 || lineNumber >= textInfo.lineInfo.Length)
+            return characterCenter;
+
+        TMP_LineInfo lineInfo = textInfo.lineInfo[lineNumber];
+        float lineCenterY = 0.5f * (lineInfo.ascender + lineInfo.descender);
+        return new Vector3(characterCenter.x, lineCenterY, 0f);
     }
 
     void OnDrawGizmosSelected()
