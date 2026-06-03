@@ -1,15 +1,48 @@
 using System.Collections.Generic;
 using System.Linq;
+using mj.gist;
+using PrefsGUI;
+using PrefsGUI.RapidGUI;
 using UnityEngine;
 
 namespace TaitungExpo
 {
     /// <summary>
     /// Manages <see cref="StemAudioZone"/> volumes from <see cref="TrackerManager"/> each frame.
-    /// Owns the zone list used by <see cref="SongManager"/> for stem playback.
+    /// Owns per-zone volume gain prefs and the zone list used by <see cref="SongManager"/>.
     /// </summary>
-    public class StemZoneManager : MonoBehaviour
+    public class StemZoneManager : MonoBehaviour, IGUIUser
     {
+        #region IGUIUser
+
+        public string GetName() => "StemZones";
+
+        public void ShowGUI()
+        {
+            EnsureVolumeGainPrefs();
+            if (volumeGains == null) return;
+
+            foreach (var zone in zones)
+            {
+                if (zone == null) continue;
+                if (!volumeGains.TryGetValue(zone, out var gain) || gain == null)
+                    continue;
+
+                string label = $"{zone.targetStem} / {zone.positionLabel}";
+                gain.DoGUISlider(0f, 2f, label);
+            }
+        }
+
+        public void SetupGUI()
+        {
+            if (volumeGains != null)
+                return;
+
+            EnsureVolumeGainPrefs();
+        }
+
+        #endregion
+
         [SerializeField] List<StemAudioZone> zones = new List<StemAudioZone>();
 
         [Header("Tracking")]
@@ -19,9 +52,15 @@ namespace TaitungExpo
         [Header("Debug")]
         [SerializeField] bool showDebugUI = true;
 
+        Dictionary<StemAudioZone, PrefsFloat> volumeGains;
         Vector2 _debugUiScroll;
 
         public IReadOnlyList<StemAudioZone> Zones => zones;
+
+        void Awake()
+        {
+            SetupGUI();
+        }
 
         void Update() => Tick();
 
@@ -32,6 +71,7 @@ namespace TaitungExpo
             var manager = TrackerManager.Instance;
             if (manager == null || manager.ActiveTrackers == null) return;
 
+            EnsureVolumeGainPrefs();
             var activeTrackers = manager.ActiveTrackers;
             foreach (var zone in zones)
             {
@@ -41,8 +81,30 @@ namespace TaitungExpo
                     .Where(t => zone.ContainsNormalizedPosition(t.pos))
                     .ToArray();
 
-                zone.UpdateVolume(trackersInVolume, maxDepth, volumeSmoothing);
+                zone.UpdateVolume(trackersInVolume, maxDepth, volumeSmoothing, GetVolumeGain(zone));
             }
+        }
+
+        void EnsureVolumeGainPrefs()
+        {
+            if (zones == null) return;
+
+            volumeGains ??= new Dictionary<StemAudioZone, PrefsFloat>();
+
+            foreach (var zone in zones)
+            {
+                if (zone == null || volumeGains.ContainsKey(zone))
+                    continue;
+
+                volumeGains[zone] = new PrefsFloat(zone.VolumeGainPrefsKey, 1f);
+            }
+        }
+
+        float GetVolumeGain(StemAudioZone zone)
+        {
+            if (volumeGains != null && volumeGains.TryGetValue(zone, out var gain) && gain != null)
+                return gain;
+            return 1f;
         }
 
         void OnGUI()

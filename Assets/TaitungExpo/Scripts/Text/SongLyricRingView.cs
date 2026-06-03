@@ -17,6 +17,10 @@ using UnityEditor;
 public class SongLyricRingView : MonoBehaviour
 {
     const string RingsRootObjectName = "LyricRings";
+    const string LyricRingObjectPrefix = "LyricRing_";
+    const string SongNameRingObjectPrefix = "SongNameRing_";
+    const string LegacySongNameRingObjectName = "SongNameRing";
+    const int SongNameRingCount = 2;
     const int MaxNbspPaddingCount = 8000;
     static int s_uiLayer = -2;
     /// <summary>Returned by <see cref="GetPlaybackListIndexIfAny"/> when rings are driven by <see cref="previewSongType"/> instead of the manager.</summary>
@@ -35,6 +39,13 @@ public class SongLyricRingView : MonoBehaviour
     float ringFontSize = 36f;
     [SerializeField] Color textColor = Color.white;
 
+    [Header("Song name ring")]
+    [SerializeField] [Min(0.001f)] float songNameRadius = 180f;
+    [SerializeField] [Min(1f)] float songNameFontSize = 72f;
+    [SerializeField] float songNameCharacterSpacing;
+    [SerializeField] float songNameAngleOffset;
+    [SerializeField] Vector3 songNameRingLocalPosition;
+
     [Header("Rings root transform")]
     [SerializeField] [FormerlySerializedAs("groupLocalPosition")]
     Vector3 ringsRootLocalPosition;
@@ -42,7 +53,9 @@ public class SongLyricRingView : MonoBehaviour
     Vector3 ringsRootLocalScale = Vector3.one;
 
     [Header("Typography")]
-    [SerializeField] TMP_FontAsset fontOverride;
+    [SerializeField] [FormerlySerializedAs("fontOverride")]
+    TMP_FontAsset lyricFontOverride;
+    [SerializeField] TMP_FontAsset songNameFontOverride;
 
     Transform _ringsRoot;
     Object _lastSongDatabase;
@@ -208,23 +221,16 @@ public class SongLyricRingView : MonoBehaviour
     {
         previewSongType = songType;
 
-        if (!TryResolveSongForLyrics(out var song) || !song.HasLyrics)
+        TryResolveSongForLyrics(out var song);
+
+        if (song == null)
         {
             Debug.LogError($"{nameof(SongLyricRingView)}: Cannot bake offline rings — no lyrics for {songType}.", this);
-            return false;
         }
 
-        string lyricSource = song.lyrics;
-        InvalidateLyricCache();
-#if UNITY_EDITOR
-        if (!Application.isPlaying)
-            RebuildAllRingsImmediate(lyricSource);
-        else
-#endif
-            RefreshRingsFromSong();
+        SongType markerSongType = song != null ? song.type : songType;
 
         EnsureRingsRootExists();
-        ApplyRingsRootTransform();
 
         if (_ringsRoot.childCount == 0)
         {
@@ -247,14 +253,17 @@ public class SongLyricRingView : MonoBehaviour
         var marker = _ringsRoot.GetComponent<LyricRingsPrefabMarker>();
         if (marker == null)
             marker = _ringsRoot.gameObject.AddComponent<LyricRingsPrefabMarker>();
-        marker.SetSongType(song.type);
+        marker.SetSongType(markerSongType);
+        marker.SetGeneratedTextReferences(
+            GetGeneratedLyricTexts(),
+            GetGeneratedSongNameTexts());
 
 #if UNITY_EDITOR
         EditorUtility.SetDirty(this);
         EditorUtility.SetDirty(_ringsRoot.gameObject);
 #endif
 
-        Debug.Log($"{nameof(SongLyricRingView)}: Baked {_ringsRoot.childCount} offline rings for {song.type} on '{_ringsRoot.name}'.", this);
+        Debug.Log($"{nameof(SongLyricRingView)}: Saved current state with {LyricRingCount()} lyric rings and {SongNameRingCount} song-name rings for {markerSongType} on '{_ringsRoot.name}'.", this);
         return true;
     }
 
@@ -265,27 +274,21 @@ public class SongLyricRingView : MonoBehaviour
         return _ringsRoot;
     }
 
-    void RebuildAllRingsImmediate(string lyrics)
+    void RebuildAllRingsImmediate(string lyrics, string songName)
     {
         EnsureRingsRootExists();
         ApplyRingsRootTransform();
+        ApplySongNameRings(songName);
 
         var ringLyrics = BuildPackedRingLyrics(lyrics);
 
-        while (_ringsRoot.childCount > ringLyrics.Count)
-        {
-            var last = _ringsRoot.GetChild(_ringsRoot.childCount - 1).gameObject;
-            if (Application.isPlaying)
-                Destroy(last);
-            else
-                DestroyImmediate(last);
-        }
-
-        for (int i = _ringsRoot.childCount; i < ringLyrics.Count; i++)
-            CreateRingObjectForLine(i);
+        TrimLyricRingObjects(ringLyrics.Count);
 
         for (int i = 0; i < ringLyrics.Count; i++)
-            ApplyLyricLineToRing(_ringsRoot.GetChild(i), i, ringLyrics);
+            EnsureLyricRingObject(i);
+
+        for (int i = 0; i < ringLyrics.Count; i++)
+            ApplyLyricLineToRing(EnsureLyricRingObject(i), i, ringLyrics);
 
         StoreLyricsSnapshot(lyrics, ringLyrics.Count);
     }
@@ -298,7 +301,10 @@ public class SongLyricRingView : MonoBehaviour
         {
             var tmp = _ringsRoot.GetChild(i).GetComponent<TextMeshPro>();
             if (tmp != null)
+            {
                 tmp.ForceMeshUpdate(true);
+                SetLayerToUiRecursively(tmp.gameObject);
+            }
         }
     }
 #endif
@@ -336,30 +342,25 @@ public class SongLyricRingView : MonoBehaviour
         string lyrics = song.lyrics;
         EnsureRingsRootExists();
         ApplyRingsRootTransform();
+        ApplySongNameRings(song.songName);
 
         var ringLyrics = BuildPackedRingLyrics(lyrics);
 
         if (ShouldRebuildRingObjects(lyrics, ringLyrics.Count))
         {
-            while (_ringsRoot.childCount > ringLyrics.Count)
-            {
-                var last = _ringsRoot.GetChild(_ringsRoot.childCount - 1).gameObject;
-                if (Application.isPlaying) Destroy(last);
-                else DestroyImmediate(last);
-            }
+            TrimLyricRingObjects(ringLyrics.Count);
             for (int i = 0; i < ringLyrics.Count; i++)
-            {
-                if (i >= _ringsRoot.childCount)
-                    CreateRingObjectForLine(i);
-            }
+                EnsureLyricRingObject(i);
             StoreLyricsSnapshot(lyrics, ringLyrics.Count);
         }
 
         for (int i = 0; i < ringLyrics.Count; i++)
         {
-            var ringTransform = _ringsRoot.GetChild(i);
+            var ringTransform = EnsureLyricRingObject(i);
             ApplyLyricLineToRing(ringTransform, i, ringLyrics);
         }
+
+        UpdatePrefabMarkerReferences();
     }
 
     bool TryResolveSongForLyrics(out Song song)
@@ -414,7 +415,7 @@ public class SongLyricRingView : MonoBehaviour
             return true;
         if (ringObjectCount != _ringObjectCount)
             return true;
-        if (_ringsRoot == null || _ringsRoot.childCount != ringObjectCount)
+        if (_ringsRoot == null || LyricRingCount() != ringObjectCount)
             return true;
         return _lyricsTextSnapshot != NormalizeLyricSource(lyrics);
     }
@@ -426,6 +427,22 @@ public class SongLyricRingView : MonoBehaviour
         _cachedPlaybackListIndex = GetPlaybackListIndexIfAny();
         _ringObjectCount = ringObjectCount;
         _lyricsTextSnapshot = NormalizeLyricSource(lyrics);
+    }
+
+    void UpdatePrefabMarkerReferences()
+    {
+        if (_ringsRoot == null) return;
+
+        var marker = _ringsRoot.GetComponent<LyricRingsPrefabMarker>();
+        if (marker == null)
+            marker = _ringsRoot.gameObject.AddComponent<LyricRingsPrefabMarker>();
+
+        if (TryResolveSongForLyrics(out var song) && song != null)
+            marker.SetSongType(song.type);
+
+        marker.SetGeneratedTextReferences(
+            GetGeneratedLyricTexts(),
+            GetGeneratedSongNameTexts());
     }
 
     void ApplyRingsRootTransform()
@@ -472,7 +489,7 @@ public class SongLyricRingView : MonoBehaviour
         {
             var go = new GameObject(RingsRootObjectName);
             go.transform.SetParent(transform, false);
-            SetLayerToUi(go);
+            SetLayerToUiRecursively(go);
             _ringsRoot = go.transform;
         }
     }
@@ -490,17 +507,165 @@ public class SongLyricRingView : MonoBehaviour
     }
 #endif
 
-    void CreateRingObjectForLine(int lineIndex)
+    Transform EnsureLyricRingObject(int lineIndex)
     {
-        var go = new GameObject($"LyricRing_{lineIndex:00}", typeof(RectTransform));
+        EnsureRingsRootExists();
+        string ringName = GetLyricRingObjectName(lineIndex);
+        var existing = _ringsRoot.Find(ringName);
+        if (existing != null)
+            return existing;
+
+        return CreateRingObjectForLine(lineIndex);
+    }
+
+    Transform EnsureSongNameRingObject(int ringIndex)
+    {
+        EnsureRingsRootExists();
+        string ringName = GetSongNameRingObjectName(ringIndex);
+        var existing = _ringsRoot.Find(ringName);
+        if (existing != null)
+            return existing;
+
+        var go = new GameObject(ringName, typeof(RectTransform));
         go.transform.SetParent(_ringsRoot, false);
         ApplyOutwardFacingTransform(go.transform);
-        SetLayerToUi(go);
+        SetLayerToUiRecursively(go);
         go.AddComponent<TextMeshPro>();
         var circular = go.AddComponent<CircularTextMeshPro>();
         circular.invertRadialOrientation = true;
         var rt = go.GetComponent<RectTransform>();
         rt.sizeDelta = new Vector2(10000f, 400f);
+        return go.transform;
+    }
+
+    Transform CreateRingObjectForLine(int lineIndex)
+    {
+        var go = new GameObject(GetLyricRingObjectName(lineIndex), typeof(RectTransform));
+        go.transform.SetParent(_ringsRoot, false);
+        ApplyOutwardFacingTransform(go.transform);
+        SetLayerToUiRecursively(go);
+        go.AddComponent<TextMeshPro>();
+        var circular = go.AddComponent<CircularTextMeshPro>();
+        circular.invertRadialOrientation = true;
+        var rt = go.GetComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(10000f, 400f);
+        return go.transform;
+    }
+
+    void TrimLyricRingObjects(int targetCount)
+    {
+        if (_ringsRoot == null) return;
+
+        for (int i = _ringsRoot.childCount - 1; i >= 0; i--)
+        {
+            var child = _ringsRoot.GetChild(i);
+            if (!IsLyricRingObject(child.name))
+                continue;
+
+            int lineIndex = ParseLyricRingIndex(child.name);
+            if (lineIndex >= 0 && lineIndex < targetCount)
+                continue;
+
+            var childObject = child.gameObject;
+            if (Application.isPlaying)
+                Destroy(childObject);
+            else
+                DestroyImmediate(childObject);
+        }
+    }
+
+    int LyricRingCount()
+    {
+        if (_ringsRoot == null) return 0;
+
+        int count = 0;
+        for (int i = 0; i < _ringsRoot.childCount; i++)
+        {
+            if (IsLyricRingObject(_ringsRoot.GetChild(i).name))
+                count++;
+        }
+        return count;
+    }
+
+    TMP_Text[] GetGeneratedLyricTexts()
+    {
+        int count = LyricRingCount();
+        var texts = new TMP_Text[count];
+        for (int i = 0; i < count; i++)
+            texts[i] = GetGeneratedComponentForRing<TMP_Text>(GetLyricRingObjectName(i));
+        return texts;
+    }
+
+    TMP_Text[] GetGeneratedSongNameTexts()
+    {
+        var texts = new TMP_Text[SongNameRingCount];
+        for (int i = 0; i < SongNameRingCount; i++)
+            texts[i] = GetGeneratedComponentForRing<TMP_Text>(GetSongNameRingObjectName(i));
+        return texts;
+    }
+
+    T GetGeneratedComponentForRing<T>(string ringName) where T : Component
+    {
+        var ring = _ringsRoot != null ? _ringsRoot.Find(ringName) : null;
+        return ring != null ? ring.GetComponent<T>() : null;
+    }
+
+    void TrimSongNameRingObjects()
+    {
+        if (_ringsRoot == null) return;
+
+        for (int i = _ringsRoot.childCount - 1; i >= 0; i--)
+        {
+            var child = _ringsRoot.GetChild(i);
+            if (child.name == LegacySongNameRingObjectName)
+            {
+                DestroyRingObject(child.gameObject);
+                continue;
+            }
+
+            if (!IsSongNameRingObject(child.name))
+                continue;
+
+            int ringIndex = ParseSongNameRingIndex(child.name);
+            if (ringIndex >= 0 && ringIndex < SongNameRingCount)
+                continue;
+
+            DestroyRingObject(child.gameObject);
+        }
+    }
+
+    static void DestroyRingObject(GameObject ringObject)
+    {
+        if (Application.isPlaying)
+            Destroy(ringObject);
+        else
+            DestroyImmediate(ringObject);
+    }
+
+    static string GetLyricRingObjectName(int lineIndex) =>
+        $"{LyricRingObjectPrefix}{lineIndex:00}";
+
+    static bool IsLyricRingObject(string objectName) =>
+        !string.IsNullOrEmpty(objectName) && objectName.StartsWith(LyricRingObjectPrefix);
+
+    static int ParseLyricRingIndex(string objectName)
+    {
+        if (!IsLyricRingObject(objectName)) return -1;
+        string suffix = objectName.Substring(LyricRingObjectPrefix.Length);
+        return int.TryParse(suffix, out int index) ? index : -1;
+    }
+
+    static string GetSongNameRingObjectName(int ringIndex) =>
+        $"{SongNameRingObjectPrefix}{ringIndex:00}";
+
+    static bool IsSongNameRingObject(string objectName) =>
+        !string.IsNullOrEmpty(objectName) && objectName.StartsWith(SongNameRingObjectPrefix);
+
+    static int ParseSongNameRingIndex(string objectName)
+    {
+        if (!IsSongNameRingObject(objectName)) return -1;
+        string suffix = objectName.Substring(SongNameRingObjectPrefix.Length);
+        return int.TryParse(suffix, out int index) ? index : -1;
     }
 
     static void SetLayerToUi(GameObject go)
@@ -508,6 +673,16 @@ public class SongLyricRingView : MonoBehaviour
         int layer = UiLayer;
         if (layer < 0) return;
         go.layer = layer;
+    }
+
+    static void SetLayerToUiRecursively(GameObject go)
+    {
+        int layer = UiLayer;
+        if (layer < 0 || go == null) return;
+
+        var transforms = go.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < transforms.Length; i++)
+            transforms[i].gameObject.layer = layer;
     }
 
     static int UiLayer
@@ -534,13 +709,10 @@ public class SongLyricRingView : MonoBehaviour
 
     TMP_Text GetMeasurementText()
     {
-        EnsureRingsRootExists();
-        if (_ringsRoot.childCount == 0)
-            CreateRingObjectForLine(0);
-
-        var measurementText = _ringsRoot.GetChild(0).GetComponent<TextMeshPro>();
+        var measurementRing = EnsureLyricRingObject(0);
+        var measurementText = measurementRing.GetComponent<TextMeshPro>();
         if (measurementText == null)
-            measurementText = _ringsRoot.GetChild(0).gameObject.AddComponent<TextMeshPro>();
+            measurementText = measurementRing.gameObject.AddComponent<TextMeshPro>();
 
         return measurementText;
     }
@@ -603,6 +775,38 @@ public class SongLyricRingView : MonoBehaviour
         string paddedForRing = PadPhraseToMinWidth(tmp, phrase, circumference);
         tmp.text = circular.invertRadialOrientation ? ReverseTextElements(paddedForRing) : paddedForRing;
         tmp.havePropertiesChanged = true;
+        tmp.ForceMeshUpdate(true);
+        SetLayerToUiRecursively(go);
+    }
+
+    void ApplySongNameRings(string songName)
+    {
+        TrimSongNameRingObjects();
+        for (int i = 0; i < SongNameRingCount; i++)
+            ApplySongNameRing(songName, i);
+    }
+
+    void ApplySongNameRing(string songName, int ringIndex)
+    {
+        var ringTransform = EnsureSongNameRingObject(ringIndex);
+        var go = ringTransform.gameObject;
+        var tmp = go.GetComponent<TextMeshPro>();
+        var circular = go.GetComponent<CircularTextMeshPro>();
+        if (tmp == null || circular == null) return;
+
+        ApplyOutwardFacingTransform(ringTransform);
+        ringTransform.localPosition = songNameRingLocalPosition;
+        ConfigureSongNameText(tmp);
+
+        circular.invertRadialOrientation = true;
+        circular.radius = songNameRadius;
+        circular.angleOffset = songNameAngleOffset + ringIndex * 180f;
+
+        string title = NormalizeLyricLineForDisplay(songName);
+        tmp.text = circular.invertRadialOrientation ? ReverseTextElements(title) : title;
+        tmp.havePropertiesChanged = true;
+        tmp.ForceMeshUpdate(true);
+        SetLayerToUiRecursively(go);
     }
 
     static void ApplyOutwardFacingTransform(Transform ringTransform)
@@ -612,13 +816,22 @@ public class SongLyricRingView : MonoBehaviour
 
     void ConfigureRingText(TMP_Text tmp)
     {
-        if (fontOverride != null) tmp.font = fontOverride;
+        if (lyricFontOverride != null) tmp.font = lyricFontOverride;
         tmp.enableAutoSizing = false;
         tmp.fontSize = ringFontSize;
+        tmp.characterSpacing = 0f;
         tmp.color = textColor;
         tmp.textWrappingMode = TextWrappingModes.NoWrap;
         tmp.overflowMode = TextOverflowModes.Overflow;
         tmp.alignment = TextAlignmentOptions.MidlineLeft;
+    }
+
+    void ConfigureSongNameText(TMP_Text tmp)
+    {
+        ConfigureRingText(tmp);
+        if (songNameFontOverride != null) tmp.font = songNameFontOverride;
+        tmp.fontSize = songNameFontSize;
+        tmp.characterSpacing = songNameCharacterSpacing;
     }
 
     static string NormalizeLyricLineForDisplay(string line)

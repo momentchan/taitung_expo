@@ -19,26 +19,27 @@ namespace TaitungExpo
         [Header("Zone Configuration")]
         public StemType targetStem;
         public VolumePosition positionLabel;
-        
+
         public AudioSource Source { get; private set; }
 
-        // Exposed for debug info
+        // Exposed for debug info (after gain is applied).
         public float CurrentVolume { get; private set; }
+
+        /// <summary>Stable PrefsGUI key for per-zone volume gain (owned by <see cref="StemZoneManager"/>).</summary>
+        public string VolumeGainPrefsKey => $"StemZone_{targetStem}_{positionLabel}_volumeGain";
 
         void Awake()
         {
-            // Initialize AudioSource parameters
             Source = GetComponent<AudioSource>();
             Source.playOnAwake = false;
             Source.loop = true;
             Source.volume = 0f;
         }
 
-        public void UpdateVolume(TrackerData[] trackers, float maxDepth, float volumeSmoothing)
+        public void UpdateVolume(TrackerData[] trackers, float maxDepth, float volumeSmoothing, float volumeGain)
         {
             float target = 0f;
 
-            // If the label is All, target volume is always 1
             if (positionLabel == VolumePosition.All)
             {
                 target = 1f;
@@ -50,7 +51,8 @@ namespace TaitungExpo
                 target = Mathf.Clamp01(sum / denom);
             }
 
-            // Smooth volume transition
+            target *= Mathf.Max(0f, volumeGain);
+
             float t = Mathf.Clamp01(volumeSmoothing * Time.deltaTime * 10f);
             CurrentVolume = Mathf.Lerp(CurrentVolume, target, t);
             Source.volume = CurrentVolume;
@@ -58,14 +60,13 @@ namespace TaitungExpo
 
         public bool ContainsNormalizedPosition(Vector2 pos)
         {
-            // Hardcode quadrants based on normalized coordinates [0.0, 1.0]
             switch (positionLabel)
             {
                 case VolumePosition.BottomLeft:  return pos.x >= 0f && pos.x <= 0.5f && pos.y >= 0f && pos.y <= 0.5f;
                 case VolumePosition.BottomRight: return pos.x > 0.5f && pos.x <= 1.0f && pos.y >= 0f && pos.y <= 0.5f;
                 case VolumePosition.TopLeft:     return pos.x >= 0f && pos.x <= 0.5f && pos.y > 0.5f && pos.y <= 1.0f;
                 case VolumePosition.TopRight:    return pos.x > 0.5f && pos.x <= 1.0f && pos.y > 0.5f && pos.y <= 1.0f;
-                case VolumePosition.All:         return true; // Always active for any tracker position
+                case VolumePosition.All:         return true;
                 default: return false;
             }
         }
