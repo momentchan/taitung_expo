@@ -21,13 +21,17 @@ Shader "Unlit/TextQuad"
         _BloomLargeFbmInfluence ("Bloom Large FBM Influence", Range(0, 1)) = 1
 
         [Header(Final)]
-        [HDR] _HdrTint ("HDR Tint", Color) = (1,1,1,1)
+        [HDR] _HdrTint1 ("HDR Tint 1", Color) = (1,1,1,1)
+        [HDR] _HdrTint2 ("HDR Tint 2", Color) = (1,1,1,1)
+        _HdrTintBlend ("HDR Tint Blend", Range(0, 1)) = 0
 
         [Header(Depth UV distort)]
         _DepthMap ("Depth Map", 2D) = "white" {}
         _DepthRangeMin ("Depth Range Min", Range(0, 1)) = 0
         _DepthRangeMax ("Depth Range Max", Range(0, 1)) = 1
         _UvDistortStrength ("UV Distort Strength", Float) = 0.02
+        _DepthInteractionRatio ("Depth Interaction Ratio", Range(0, 1)) = 1
+        _UvDistortNoDepthStrength ("No Depth Distort Strength", Range(0, 1)) = 0
         _UvDistortFbmScale ("Distort FBM Scale", Float) = 4
         _UvDistortFbmTime ("Distort FBM Time Scale", Float) = 0.2
         _UvDistortFbmPhase ("Distort FBM Phase", Float) = 0
@@ -94,13 +98,17 @@ Shader "Unlit/TextQuad"
             float _BloomLargeFbmPhase;
             half _BloomLargeFbmInfluence;
 
-            half4 _HdrTint;
+            half4 _HdrTint1;
+            half4 _HdrTint2;
+            half _HdrTintBlend;
 
             sampler2D _DepthMap;
             float4 _DepthMap_ST;
             half _DepthRangeMin;
             half _DepthRangeMax;
             float _UvDistortStrength;
+            half _DepthInteractionRatio;
+            half _UvDistortNoDepthStrength;
             float _UvDistortFbmScale;
             float _UvDistortFbmTime;
             float _UvDistortFbmPhase;
@@ -125,19 +133,20 @@ Shader "Unlit/TextQuad"
                 return o;
             }
 
-            // FBM UV offset, scaled by normalized depth (no distort where depth is empty).
+            // FBM UV offset, scaled by normalized depth with an optional no-depth baseline.
             float2 DistortedContentUv(float2 baseUv, float2 uvDepth)
             {
                 half depthRaw = tex2D(_DepthMap, uvDepth).r;
                 half depthSpan = max(_DepthRangeMax - _DepthRangeMin, 1e-4h);
-                half depth = saturate((depthRaw - _DepthRangeMin) / depthSpan);
+                half depth = saturate((depthRaw - _DepthRangeMin) / depthSpan) * saturate(_DepthInteractionRatio);
+                half distortWeight = lerp(saturate(_UvDistortNoDepthStrength), 1.0h, depth);
 
                 float2 uvF = baseUv * _UvDistortFbmScale;
                 float t = _Time.y * _UvDistortFbmTime + _UvDistortFbmPhase;
                 float fX = fbm2(uvF, t);
                 float fY = fbm2(uvF, t + 16.8);
                 half2 fbm01 = saturate(half2(fX, fY) * 0.5h + 0.5h);
-                half2 distort = (fbm01 - 0.5) * 2.0 * depth;
+                half2 distort = (fbm01 - 0.5) * 2.0 * distortWeight;
 
                 return saturate(baseUv + distort * _UvDistortStrength);
             }
@@ -156,17 +165,18 @@ Shader "Unlit/TextQuad"
                 float fLarge = fbm2(uvC * _BloomLargeFbmScale, _Time.y * _BloomLargeFbmTime + _BloomLargeFbmPhase);
                 float modLarge = lerp(1.0, saturate(fLarge * 0.5 + 0.5), saturate(_BloomLargeFbmInfluence));
 
+                half4 tint = lerp(_HdrTint1, _HdrTint2, saturate(_HdrTintBlend));
                 half3 rgb = ui.rgb;
                 rgb += bloomSmall.rgb * (_BloomSmallStrength * (half)modSmall);
                 rgb += bloomLarge.rgb * (_BloomLargeStrength * (half)modLarge);
-                rgb *= _HdrTint.rgb;
+                rgb *= tint.rgb;
 
 
                 float fAlpha = fbm2(uvC * _TextQuadAlphaFbmScale, _Time.y * _TextQuadAlphaFbmTimeScale + _TextQuadAlphaFbmPhase);
                 float alphaFbm = saturate(fAlpha * 0.5 + 0.5);
                 alphaFbm = smoothstep(_TextQuadAlphaFbmThreshold, 1.0, alphaFbm);
 
-                half4 curr = half4(rgb, _HdrTint.a * (half)alphaFbm);
+                half4 curr = half4(rgb, tint.a * (half)alphaFbm);
 
                 // Same idea as FrameBlendFeature: lerp current composite toward last frame (history).
                 half useHistory = saturate(_FrameBlendFactor) * saturate(_FrameBlendHistoryValid);

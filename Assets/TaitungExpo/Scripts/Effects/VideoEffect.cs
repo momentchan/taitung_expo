@@ -45,6 +45,7 @@ namespace TaitungExpo
         #endregion
 
         [SerializeField] private Material material;
+        [SerializeField] [Range(0f, 1f)] private float outputRatio = 1f;
 
         private PrefsFloat depthRangeMin;
         private PrefsFloat depthRangeMax;
@@ -56,6 +57,15 @@ namespace TaitungExpo
         private PrefsFloat lumaBias;
         private PrefsFloat ditherMix;
         private PrefsFloat depthSplit;
+
+        public float OutputRatio => outputRatio;
+
+        public void SetRatio(float ratio)
+        {
+            outputRatio = Mathf.Clamp01(ratio);
+            if (material != null)
+                material.SetFloat("_Ratio", outputRatio);
+        }
 
         void Update()
         {
@@ -72,6 +82,7 @@ namespace TaitungExpo
             material.SetFloat("_LumaBias", lumaBias);
             material.SetFloat("_DitherMix", ditherMix);
             material.SetFloat("_DepthSplit", depthSplit);
+            material.SetFloat("_Ratio", outputRatio);
         }
     }
 }

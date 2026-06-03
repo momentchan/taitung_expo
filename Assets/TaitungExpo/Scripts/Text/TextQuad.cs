@@ -21,6 +21,7 @@ namespace TaitungExpo
             depthRangeMin.DoGUISlider(0f, 1f, "Depth Range Min");
             depthRangeMax.DoGUISlider(0f, 1f, "Depth Range Max");
             uvDistortStrength.DoGUISlider(0f, 1f, "UV Distort Strength");
+            uvDistortNoDepthStrength.DoGUISlider(0f, 1f, "No Depth Distort Strength");
             uvDistortFbmScale.DoGUISlider(0f, 50f, "Distort FBM Scale");
             uvDistortFbmTime.DoGUISlider(0f, 5f, "Distort FBM Time");
         }
@@ -31,6 +32,7 @@ namespace TaitungExpo
             depthRangeMin = new PrefsFloat($"{GetName()}_depthRangeMin", 0.32f);
             depthRangeMax = new PrefsFloat($"{GetName()}_depthRangeMax", 1f);
             uvDistortStrength = new PrefsFloat($"{GetName()}_uvDistortStrength", 0.2f);
+            uvDistortNoDepthStrength = new PrefsFloat($"{GetName()}_uvDistortNoDepthStrength", 0.05f);
             uvDistortFbmScale = new PrefsFloat($"{GetName()}_uvDistortFbmScale", 2f);
             uvDistortFbmTime = new PrefsFloat($"{GetName()}_uvDistortFbmTime", 0.2f);
         }
@@ -42,6 +44,8 @@ namespace TaitungExpo
         [Tooltip("Composite (UI + blooms + optional frame blend) is written here each frame.")]
         [SerializeField] private RenderTexture output;
         [SerializeField] private Texture ui;
+        [SerializeField] [Range(0f, 1f)] private float hdrTintBlend;
+        [SerializeField] [Range(0f, 1f)] private float depthInteractionRatio = 1f;
 
         [Header("Frame blend (text only)")]
         [Tooltip("Matches FrameBlendFeature: weight on previous frame (0 = off, high = long trails).")]
@@ -55,8 +59,26 @@ namespace TaitungExpo
         private PrefsFloat depthRangeMin;
         private PrefsFloat depthRangeMax;
         private PrefsFloat uvDistortStrength;
+        private PrefsFloat uvDistortNoDepthStrength;
         private PrefsFloat uvDistortFbmScale;
         private PrefsFloat uvDistortFbmTime;
+
+        public float HdrTintBlend => hdrTintBlend;
+        public float DepthInteractionRatio => depthInteractionRatio;
+
+        public void SetHdrTintBlend(float blend)
+        {
+            hdrTintBlend = Mathf.Clamp01(blend);
+            if (material != null)
+                material.SetFloat("_HdrTintBlend", hdrTintBlend);
+        }
+
+        public void SetDepthInteractionRatio(float ratio)
+        {
+            depthInteractionRatio = Mathf.Clamp01(ratio);
+            if (material != null)
+                material.SetFloat("_DepthInteractionRatio", depthInteractionRatio);
+        }
 
         void OnDestroy()
         {
@@ -78,9 +100,12 @@ namespace TaitungExpo
             material.SetFloat("_FrameBlendFactor", frameBlendFactor);
             material.SetFloat("_DepthRangeMin", depthRangeMin);
             material.SetFloat("_DepthRangeMax", depthRangeMax);
+            material.SetFloat("_DepthInteractionRatio", depthInteractionRatio);
             material.SetFloat("_UvDistortStrength", uvDistortStrength);
+            material.SetFloat("_UvDistortNoDepthStrength", uvDistortNoDepthStrength);
             material.SetFloat("_UvDistortFbmScale", uvDistortFbmScale);
             material.SetFloat("_UvDistortFbmTime", uvDistortFbmTime);
+            material.SetFloat("_HdrTintBlend", hdrTintBlend);
             material.SetFloat("_FrameBlendHistoryValid", _historyValid && _history != null ? 1f : 0f);
 
             if (_history != null)

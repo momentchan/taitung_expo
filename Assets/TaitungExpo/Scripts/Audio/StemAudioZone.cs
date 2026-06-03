@@ -58,6 +58,13 @@ namespace TaitungExpo
             Source.volume = CurrentVolume;
         }
 
+        public void SetVolumeImmediate(float volume)
+        {
+            CurrentVolume = Mathf.Max(0f, volume);
+            if (Source != null)
+                Source.volume = CurrentVolume;
+        }
+
         public bool ContainsNormalizedPosition(Vector2 pos)
         {
             switch (positionLabel)

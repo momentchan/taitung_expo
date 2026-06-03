@@ -20,6 +20,7 @@ Shader "Unlit/DitherBitonal"
         _DitherMix ("Dither Mix (0 smooth, 1 hard)", Range(0, 1)) = 1
         [Header(Depth effect split)]
         _DepthSplit ("Dither / Thermal Split", Range(0.01, 0.99)) = 0.5
+        _Ratio ("Output Ratio", Range(0, 1)) = 1
     }
     SubShader
     {
@@ -63,6 +64,7 @@ Shader "Unlit/DitherBitonal"
             half _DepthRangeMin;
             half _DepthRangeMax;
             half _DepthSplit;
+            half _Ratio;
 
             // High-contrast 10-stop thermal (sync with ThermalEffect.hlsl).
             half3 ThermalEffectRGB(half3 InColor)
@@ -174,7 +176,7 @@ Shader "Unlit/DitherBitonal"
                 half3 thermalOnDither = ThermalEffectRGB(col);
                 half3 outRgb = lerp(blended, thermalOnDither, toThermal);
 
-                return half4(outRgb, 1);
+                return half4(outRgb * _Ratio, 1);
             }
             ENDCG
         }
