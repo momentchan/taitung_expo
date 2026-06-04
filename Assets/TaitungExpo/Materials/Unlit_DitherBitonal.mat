@@ -43,7 +43,7 @@ Material:
     - _HighlightScale: 1.47
     - _LumaBias: -0.124
     - _MaskWeight: 1
-    - _Ratio: 0
+    - _Ratio: 1
     - _ShadowScale: 0.052
     m_Colors: []
   m_BuildTextureStacks: []

@@ -149,10 +149,10 @@ public class LyricRingsPrefabApplier : MonoBehaviour, IGUIUser
         instanceTransform.localScale = Vector3.one;
         _activeInstance.SetActive(true);
 
-        ConfigurePlaybackAnimator();
+        ConfigurePlaybackAnimator(songType);
     }
 
-    void ConfigurePlaybackAnimator()
+    void ConfigurePlaybackAnimator(SongType songType)
     {
         if (!animatePlaybackMode || _activeInstance == null)
             return;
@@ -167,7 +167,8 @@ public class LyricRingsPrefabApplier : MonoBehaviour, IGUIUser
             marker,
             Manager,
             fadeDuration,
-            firstRingClockwise);
+            firstRingClockwise,
+            GetInteractionVisibleLyricRings(songType));
     }
 
     void EnsurePlaybackPrefs()
@@ -192,6 +193,26 @@ public class LyricRingsPrefabApplier : MonoBehaviour, IGUIUser
             EnsurePlaybackPrefs();
             return Mathf.Max(0f, rotationAccelerationPrefs != null ? rotationAccelerationPrefs.Get() : 6f);
         }
+    }
+
+    int[] GetInteractionVisibleLyricRings(SongType songType)
+    {
+        Song song = GetSongForType(songType);
+        return song != null ? song.interactionVisibleLyricRings : null;
+    }
+
+    static Song GetSongForType(SongType songType)
+    {
+        if (Manager == null || Manager.SongsDatabase == null || Manager.SongsDatabase.songs == null)
+            return null;
+
+        foreach (Song song in Manager.SongsDatabase.songs)
+        {
+            if (song != null && song.type == songType)
+                return song;
+        }
+
+        return null;
     }
 
     void RebuildLookup()
@@ -272,16 +293,15 @@ public class LyricRingsPrefabApplier : MonoBehaviour, IGUIUser
 
 class LyricRingsPlaybackAnimator
 {
-    const int FirstVisibleLyricRingIndex = 0;
-    const int ThirdVisibleLyricRingIndex = 2;
+    static readonly int[] DefaultInteractionVisibleLyricRings = { 1, 3 };
 
     readonly SongManager _songManager;
     readonly float _textFadeDuration;
     readonly bool _firstRingClockwise;
+    readonly HashSet<int> _interactionVisibleRingIndices = new HashSet<int>();
     TextFadeState[] _lyricStates = System.Array.Empty<TextFadeState>();
     TextFadeState[] _songNameStates = System.Array.Empty<TextFadeState>();
-    Transform _firstRing;
-    Transform _thirdRing;
+    Transform[] _rotatingRings = System.Array.Empty<Transform>();
     SongPlaybackMode _mode = SongPlaybackMode.Transition;
     float _currentRotationSpeed;
 
@@ -289,13 +309,14 @@ class LyricRingsPlaybackAnimator
         LyricRingsPrefabMarker marker,
         SongManager manager,
         float fadeDuration,
-        bool firstRingClockwise)
+        bool firstRingClockwise,
+        int[] interactionVisibleLyricRings)
     {
         _songManager = manager;
         _textFadeDuration = Mathf.Max(0.001f, fadeDuration);
         _firstRingClockwise = firstRingClockwise;
 
-        RefreshReferences(marker);
+        RefreshReferences(marker, interactionVisibleLyricRings);
         if (_songManager != null)
             _songManager.OnPlaybackModeChanged += OnPlaybackModeChanged;
 
@@ -319,15 +340,14 @@ class LyricRingsPlaybackAnimator
         ApplyMode(mode, false);
     }
 
-    void RefreshReferences(LyricRingsPrefabMarker marker)
+    void RefreshReferences(LyricRingsPrefabMarker marker, int[] interactionVisibleLyricRings)
     {
         if (marker == null)
             return;
 
         _lyricStates = BuildStates(marker.LyricTexts);
         _songNameStates = BuildStates(marker.SongNameTexts);
-        _firstRing = GetRingTransform(marker.LyricTexts, FirstVisibleLyricRingIndex);
-        _thirdRing = GetRingTransform(marker.LyricTexts, ThirdVisibleLyricRingIndex);
+        BuildInteractionVisibleRingSet(marker.LyricTexts, interactionVisibleLyricRings);
     }
 
     void ApplyMode(SongPlaybackMode mode, bool immediate)
@@ -355,7 +375,7 @@ class LyricRingsPlaybackAnimator
     {
         for (int i = 0; i < _lyricStates.Length; i++)
         {
-            bool keepVisible = i == FirstVisibleLyricRingIndex || i == ThirdVisibleLyricRingIndex;
+            bool keepVisible = _interactionVisibleRingIndices.Contains(i);
             _lyricStates[i].TargetAlpha = interaction && !keepVisible ? 0f : 1f;
         }
     }
@@ -393,12 +413,42 @@ class LyricRingsPlaybackAnimator
         if (_currentRotationSpeed <= 0f)
             return;
 
-        float direction = _firstRingClockwise ? -1f : 1f;
+        float baseDirection = _firstRingClockwise ? -1f : 1f;
         float deltaAngle = _currentRotationSpeed * deltaTime;
-        if (_firstRing != null)
-            _firstRing.Rotate(0f, 0f, direction * deltaAngle, Space.Self);
-        if (_thirdRing != null)
-            _thirdRing.Rotate(0f, 0f, -direction * deltaAngle, Space.Self);
+        for (int i = 0; i < _rotatingRings.Length; i++)
+        {
+            Transform ring = _rotatingRings[i];
+            if (ring == null)
+                continue;
+
+            float direction = i % 2 == 0 ? baseDirection : -baseDirection;
+            ring.Rotate(0f, 0f, direction * deltaAngle, Space.Self);
+        }
+    }
+
+    void BuildInteractionVisibleRingSet(TMP_Text[] lyricTexts, int[] oneBasedRingNumbers)
+    {
+        _interactionVisibleRingIndices.Clear();
+
+        int[] ringNumbers = oneBasedRingNumbers != null && oneBasedRingNumbers.Length > 0
+            ? oneBasedRingNumbers
+            : DefaultInteractionVisibleLyricRings;
+
+        var rotatingRings = new List<Transform>();
+        for (int i = 0; i < ringNumbers.Length; i++)
+        {
+            int zeroBasedIndex = ringNumbers[i] - 1;
+            if (lyricTexts == null || zeroBasedIndex < 0 || zeroBasedIndex >= lyricTexts.Length)
+                continue;
+            if (!_interactionVisibleRingIndices.Add(zeroBasedIndex))
+                continue;
+
+            Transform ring = GetRingTransform(lyricTexts, zeroBasedIndex);
+            if (ring != null)
+                rotatingRings.Add(ring);
+        }
+
+        _rotatingRings = rotatingRings.ToArray();
     }
 
     static TextFadeState[] BuildStates(TMP_Text[] texts)

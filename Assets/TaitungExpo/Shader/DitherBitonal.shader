@@ -152,7 +152,8 @@ Shader "Unlit/DitherBitonal"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                half3 col = tex2D(_MainTex, i.uv).rgb;
+                half2 uv = (i.uv - 0.5) * float2(0.5625, 1) * 0.97 + 0.5;
+                half3 col = tex2D(_MainTex, uv).rgb;
                 half lum01 = saturate(dot(col, half3(0.299h, 0.587h, 0.114h)) + _LumaBias);
 
                 float f = fbm2(i.uv * _FbmScale, _Time.y * _FbmTimeScale + _FbmPhase);

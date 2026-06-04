@@ -37,7 +37,7 @@ namespace TaitungExpo
 
             for (int i = 0; i < rows.Count; i++)
             {
-                // A=stem key, B=song name, C=lyrics, D=video (optional)
+                // A=stem key, B=song name, C=lyrics, D=video (optional), E=interaction lyric rings to keep (optional, e.g. "1,3")
                 if (rows[i].Length < 3) continue;
 
                 string stemSearchKey = rows[i][0].Trim();
@@ -54,6 +54,9 @@ namespace TaitungExpo
                 // Keep CSV lyrics as one string; line breaks are preserved for ring splitting at display time.
                 newSong.lyrics = NormalizeLyrics(rawLyrics);
                 newSong.videoFileName = videoName;
+                newSong.interactionVisibleLyricRings = ParseRingNumberList(
+                    JoinFieldsFrom(rows[i], 4),
+                    newSong.interactionVisibleLyricRings);
 
                 // 4. Auto-link Addressable stems by searching filenames (column A prefix, e.g. "01 給情人的紀念品")
                 newSong.origin = FindStemReference(stemSearchKey, "示意原曲");
@@ -78,6 +81,46 @@ namespace TaitungExpo
                 return string.Empty;
 
             return raw.Replace("\r\n", "\n").Replace('\r', '\n').Trim();
+        }
+
+        static string JoinFieldsFrom(string[] row, int startIndex)
+        {
+            if (row == null || startIndex < 0 || startIndex >= row.Length)
+                return string.Empty;
+
+            return string.Join(",", row, startIndex, row.Length - startIndex).Trim();
+        }
+
+        static int[] ParseRingNumberList(string raw, int[] fallback)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+                return fallback ?? Array.Empty<int>();
+
+            string normalized = raw
+                .Replace('，', ',')
+                .Replace('、', ',')
+                .Replace(';', ',');
+
+            string[] parts = normalized.Split(',');
+            var result = new List<int>();
+            var seen = new HashSet<int>();
+            foreach (string part in parts)
+            {
+                string trimmed = part.Trim();
+                if (trimmed.Length == 0)
+                    continue;
+
+                if (!int.TryParse(trimmed, out int ringNumber) || ringNumber <= 0)
+                {
+                    Debug.LogWarning($"Invalid lyric ring number \"{trimmed}\" in CSV. Expected positive integers like 1,3.");
+                    continue;
+                }
+
+                if (seen.Add(ringNumber))
+                    result.Add(ringNumber);
+            }
+
+            return result.Count > 0 ? result.ToArray() : fallback ?? Array.Empty<int>();
         }
 
         private static AssetReferenceT<AudioClip> FindStemReference(string baseName, string suffix)

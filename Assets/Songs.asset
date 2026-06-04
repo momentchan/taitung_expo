@@ -51,7 +51,7 @@ MonoBehaviour:
       m_SubObjectGUID: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    videoFileName: FL-1083-A1-hap-1080p.mov
+    videoFileName: "08_\u7D66\u60C5\u4EBA\u7684\u7D00\u5FF5\u54C1.mov"
     lyrics: "Tayra sa kako i loma\u2019 no rira wawa, hemek sanay kora wawa.\n\u2019Acyah
       ko hemek iso idang to tireng sa no mako, tiya kako ha idang mahemek ko harateng.\nPatanem
       han nako paiceeb ko rira wawa, karat sanay to ngoyos.\n\u2019Acyah ko piri\u2019
@@ -59,6 +59,7 @@ MonoBehaviour:
       han nako to toki ko rira wawa, tok^tok han nira to fakeloh.\nKesem sa ko harateng
       to faluco\u2019 nora wawa.\n\u2019Acyah ko piri\u2019 iso idang to toki sa
       no mako."
+    interactionVisibleLyricRings: 0100000003000000
   - type: 1
     songName: "\u6708\u4E0B\u8AC7\u611B"
     origin:
@@ -97,7 +98,7 @@ MonoBehaviour:
       m_SubObjectGUID: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    videoFileName: "\u6708\u4E0B\u8AC7\u611B_1920x1080-hap-square.mov"
+    videoFileName: "01_\u6708\u4E0B\u8AC7\u611B.mov"
     lyrics: "\"Yo pasi\u2019amis a yo pasitimol, o masarakesay ya o masarakesay ya
       o mamikuli.\nKuliay ya kuliay i takuwanan, hay ya mapolong a matayal.\nYo pasi\u2019amis
       yo pasiitip, icoway ko nengnengen no wali wawa?\nYo melimeli yo melimeli, koyosay
@@ -109,6 +110,7 @@ MonoBehaviour:
       u pising iso.\nU pising ya u pising no tatusaay, ay ya ay ya kako lina.\nYo
       pasi\u2019amis yo pasitimol, o masarekesay o masarekesay o mamikuli.\nKuliay
       ya kuliay i takuwanan, hay ya mapolong hay ya matayal.\""
+    interactionVisibleLyricRings: 0100000003000000
   - type: 2
     songName: "\u83DC\u6E6F"
     origin:
@@ -147,7 +149,7 @@ MonoBehaviour:
       m_SubObjectGUID: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    videoFileName: FL-1083-A1-hap-1080p.mov
+    videoFileName: "04_\u83DC\u6E6F.mov"
     lyrics: "Hiya hooyan u kuhaw. Kuhaw no futing, kohaw i han naca. Aredetay!\nHiya
       hooyan u kuhaw. Kuhaw sa no futing, kohaw i han naca. Aredetay!\nHiya hooyan
       u kuhaw. Kuhaw no \u2019alutuc, kohaw i han naca. Anengelay!\nHiya hooyan u
@@ -159,6 +161,7 @@ MonoBehaviour:
       naca. Sirikuray!\nHiya hooyan u kuhaw. Kuhaw no sufading, kohaw i han naca.
       Sirikuray!\nHiya hooyan u kuhaw. Kuhaw no fananiol, kohaw i han naca. Siputa\u2019ay!\nHiya
       hooyan u kuhaw. Kuhaw no fananiol, kuhaw i han naca. Siputa\u2019ay!"
+    interactionVisibleLyricRings: 0100000005000000
   - type: 3
     songName: "\u5BB4\u6703\u6B4C\u821E"
     origin:
@@ -197,7 +200,7 @@ MonoBehaviour:
       m_SubObjectGUID: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    videoFileName: "\u6708\u4E0B\u8AC7\u611B_1920x1080-hap-square.mov"
+    videoFileName: "05_\u5BB4\u6703\u6B4C\u821E.mov"
     lyrics: 'Hiya hay yan ha Hiya hay yo yan, Hi ya o hoy yan,
 
       Hiya o hay
@@ -238,6 +241,7 @@ MonoBehaviour:
 
       Hay
       yo yan ho i yoin hoy yan, hay yo yan in ho hay yan.'
+    interactionVisibleLyricRings: 0100000003000000
   - type: 4
     songName: "\u601D\u5FF5"
     origin:
@@ -276,7 +280,7 @@ MonoBehaviour:
       m_SubObjectGUID: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    videoFileName: FL-1083-A1-hap-1080p.mov
+    videoFileName: "03_\u601D\u5FF5.mov"
     lyrics: 'Felat felat sa yo pising, yo pising iso ha ina,
 
       yo paikuran no
@@ -301,6 +305,7 @@ MonoBehaviour:
 
       Hay nalowan hiyoin, hay
       nalowan yoin, ho ay yi yan ho hay yan.'
+    interactionVisibleLyricRings: 0100000003000000
   - type: 5
     songName: "\u795D\u8C50\u5E74"
     origin:
@@ -339,7 +344,7 @@ MonoBehaviour:
       m_SubObjectGUID: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    videoFileName: "\u6708\u4E0B\u8AC7\u611B_1920x1080-hap-square.mov"
+    videoFileName: "02_\u795D\u8C50\u5E74.mov"
     lyrics: "Hay yo i yi ay ya ay ya ya yen,\nhay yan na i yo ay yen hoy yan na i
       ya hay yan,\nhay yan na i ya ay yan ho ay yan,\nhan hi yen ay yan a hi yan
       ay hi\u2019n, hoy yen han yo in i ya ay yay.\nHo i yi yan i yi yan na i ye,\nhay
@@ -351,6 +356,7 @@ MonoBehaviour:
       i yi yan i yi yan na i hi\u2019y,\nhay yan na i ya hay yan ho ay yan na hi
       yan hay hi\u2019,\nhay yan na i yan hay yan ho ay yan,\nhan hi yan hi yan na
       hi yan hay hi\u2019n, hi\u2019y yan han hi ya on hay hi\u2019n i ya hay yay."
+    interactionVisibleLyricRings: 0100000003000000
   - type: 6
     songName: "\u9664\u8349\u6B4C"
     origin:
@@ -389,7 +395,7 @@ MonoBehaviour:
       m_SubObjectGUID: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    videoFileName: FL-1083-A1-hap-1080p.mov
+    videoFileName: "06_\u9664\u8349\u6B4C.mov"
     lyrics: "Hay ya hikasi hikasi i kalaloman, malingad talomah kami \u2019alayay
       to takuyodan,\nhoy ya tahila i omah sato kami, tatuyay to raral kami kulasay
       to pakreng.\nHoy yo minukay sato dadaya kami, tayra i Piwma kami patawsi sato
@@ -400,6 +406,7 @@ MonoBehaviour:
       ila to kiya heci noya panay, cecayay a sato kiya heci niya panay sano niyam,\nhoy
       yo minukay sato dadaya kami, tahira i loma\u2019 kami filoay ya matifek.\nHay
       ya mahalek malafi sato kami, ci dateng sato kami o cekiw no acawa."
+    interactionVisibleLyricRings: 0100000003000000
   - type: 7
     songName: "\u7FA9\u52D9\u52DE\u52D5"
     origin:
@@ -438,7 +445,7 @@ MonoBehaviour:
       m_SubObjectGUID: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    videoFileName: "\u6708\u4E0B\u8AC7\u611B_1920x1080-hap-square.mov"
+    videoFileName: "07_\u7FA9\u52D9\u52DE\u52D5.mov"
     lyrics: 'Hiya aya kako ino kini, awa maan ko teli no matiniay.
 
       Ano ccayho
@@ -464,3 +471,4 @@ MonoBehaviour:
 
       Hapatay pataytu hapatay pataytu, ino
       sanay ino kako ha kiso ina amaaw.'
+    interactionVisibleLyricRings: 0100000003000000
