@@ -36,15 +36,10 @@ Material:
     - _DepthRangeMax: 1
     - _DepthRangeMin: 0.371
     - _DepthSplit: 0.5
-    - _DitherMix: 1
-    - _FbmPhase: 0
-    - _FbmScale: 84.8
-    - _FbmTimeScale: 1.7
-    - _HighlightScale: 1.47
-    - _LumaBias: -0.124
-    - _MaskWeight: 1
+    - _DitherBoost: 2
     - _Ratio: 1
-    - _ShadowScale: 0.052
+    - _ScatterRadius: 0.1
+    - _ScatterScale: 500
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

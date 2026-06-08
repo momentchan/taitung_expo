@@ -413,7 +413,7 @@ class LyricRingsPlaybackAnimator
         if (_currentRotationSpeed <= 0f)
             return;
 
-        float baseDirection = _firstRingClockwise ? -1f : 1f;
+        float direction = _firstRingClockwise ? -1f : 1f;
         float deltaAngle = _currentRotationSpeed * deltaTime;
         for (int i = 0; i < _rotatingRings.Length; i++)
         {
@@ -421,7 +421,6 @@ class LyricRingsPlaybackAnimator
             if (ring == null)
                 continue;
 
-            float direction = i % 2 == 0 ? baseDirection : -baseDirection;
             ring.Rotate(0f, 0f, direction * deltaAngle, Space.Self);
         }
     }

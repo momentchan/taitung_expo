@@ -55,12 +55,12 @@ Material:
     - _BloomSmallFbmScale: 18.6
     - _BloomSmallFbmTime: 1
     - _BloomSmallStrength: 0.27
-    - _DepthInteractionRatio: 1
+    - _DepthInteractionRatio: 0
     - _DepthRangeMax: 1
     - _DepthRangeMin: 0.32
     - _FrameBlendFactor: 0.918
     - _FrameBlendHistoryValid: 1
-    - _HdrTintBlend: 0
+    - _HdrTintBlend: 0.3436812
     - _TextQuadAlphaFbmInfluence: 1
     - _TextQuadAlphaFbmPhase: 0.9
     - _TextQuadAlphaFbmScale: 5

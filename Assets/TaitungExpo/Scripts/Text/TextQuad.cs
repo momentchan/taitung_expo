@@ -24,6 +24,8 @@ namespace TaitungExpo
             uvDistortNoDepthStrength.DoGUISlider(0f, 1f, "No Depth Distort Strength");
             uvDistortFbmScale.DoGUISlider(0f, 50f, "Distort FBM Scale");
             uvDistortFbmTime.DoGUISlider(0f, 5f, "Distort FBM Time");
+            bloomSmallStrength.DoGUISlider(0f, 4f, "Bloom Small Strength");
+            bloomLargeStrength.DoGUISlider(0f, 4f, "Bloom Large Strength");
         }
 
         public void SetupGUI()
@@ -35,6 +37,8 @@ namespace TaitungExpo
             uvDistortNoDepthStrength = new PrefsFloat($"{GetName()}_uvDistortNoDepthStrength", 0.05f);
             uvDistortFbmScale = new PrefsFloat($"{GetName()}_uvDistortFbmScale", 2f);
             uvDistortFbmTime = new PrefsFloat($"{GetName()}_uvDistortFbmTime", 0.2f);
+            bloomSmallStrength = new PrefsFloat($"{GetName()}_bloomSmallStrength", 1f);
+            bloomLargeStrength = new PrefsFloat($"{GetName()}_bloomLargeStrength", 1f);
         }
 
         #endregion
@@ -62,6 +66,8 @@ namespace TaitungExpo
         private PrefsFloat uvDistortNoDepthStrength;
         private PrefsFloat uvDistortFbmScale;
         private PrefsFloat uvDistortFbmTime;
+        private PrefsFloat bloomSmallStrength;
+        private PrefsFloat bloomLargeStrength;
 
         public float HdrTintBlend => hdrTintBlend;
         public float DepthInteractionRatio => depthInteractionRatio;
@@ -105,6 +111,8 @@ namespace TaitungExpo
             material.SetFloat("_UvDistortNoDepthStrength", uvDistortNoDepthStrength);
             material.SetFloat("_UvDistortFbmScale", uvDistortFbmScale);
             material.SetFloat("_UvDistortFbmTime", uvDistortFbmTime);
+            material.SetFloat("_BloomSmallStrength", bloomSmallStrength);
+            material.SetFloat("_BloomLargeStrength", bloomLargeStrength);
             material.SetFloat("_HdrTintBlend", hdrTintBlend);
             material.SetFloat("_FrameBlendHistoryValid", _historyValid && _history != null ? 1f : 0f);
 

@@ -10,6 +10,8 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Klak.Hap;
 using mj.gist;
+using PrefsGUI;
+using PrefsGUI.RapidGUI;
 
 namespace TaitungExpo
 {
@@ -19,8 +21,30 @@ namespace TaitungExpo
         Interaction
     }
 
-    public class SongManager : SingletonMonoBehaviour<SongManager>
+    public class SongManager : SingletonMonoBehaviour<SongManager>, IGUIUser
     {
+        #region IGUIUser
+
+        public string GetName() => "SongManager";
+
+        public void ShowGUI()
+        {
+            EnsureVisualFadePrefs();
+            visualFadeDurationPrefs.DoGUISlider(0.001f, 10f, "Visual Fade Duration");
+        }
+
+        public void SetupGUI()
+        {
+            EnsureVisualFadePrefs();
+        }
+
+        void EnsureVisualFadePrefs()
+        {
+            visualFadeDurationPrefs ??= new PrefsFloat($"{GetName()}_visualFadeDuration", visualFadeDuration);
+        }
+
+        #endregion
+
         [Header("Data")]
         [SerializeField] private int currentSongIndex = 0;
         [SerializeField] private Songs songsDatabase;
@@ -50,11 +74,23 @@ namespace TaitungExpo
         private int playingSongIndex = -1;
         private Coroutine playbackCycleCoroutine;
         private bool hasStartedPlaybackCycle;
+        PrefsFloat visualFadeDurationPrefs;
 
         /// <summary>Set after a full successful load (use for lyrics/UI that enable after startup).</summary>
         public int LastLoadedSongIndex { get; private set; } = -1;
         public SongPlaybackMode CurrentPlaybackMode { get; private set; } = SongPlaybackMode.Transition;
-        public float VisualFadeDuration => visualFadeDuration;
+
+        public float VisualFadeDuration
+        {
+            get
+            {
+                EnsureVisualFadePrefs();
+                float value = visualFadeDurationPrefs != null
+                    ? visualFadeDurationPrefs.Get()
+                    : visualFadeDuration;
+                return Mathf.Max(0.001f, value);
+            }
+        }
 
         public Songs SongsDatabase => songsDatabase;
 
@@ -79,6 +115,12 @@ namespace TaitungExpo
 
         IReadOnlyList<StemAudioZone> AudioZones =>
             stemZoneManager != null ? stemZoneManager.Zones : Array.Empty<StemAudioZone>();
+
+        protected override void Awake()
+        {
+            base.Awake();
+            SetupGUI();
+        }
 
         async void Start()
         {
@@ -264,7 +306,7 @@ namespace TaitungExpo
             float videoStart = mode == SongPlaybackMode.Transition && !skipVideoFadeOut ? 1f : 0f;
             float textStart = mode == SongPlaybackMode.Transition ? 0f : 1f;
             float depthInteractionStart = mode == SongPlaybackMode.Transition && !skipVideoFadeOut ? 1f : 0f;
-            float fadeDuration = Mathf.Max(0.001f, visualFadeDuration);
+            float fadeDuration = VisualFadeDuration;
             float elapsed = 0f;
 
             while (elapsed < duration)
@@ -327,7 +369,7 @@ namespace TaitungExpo
                 return clip.length;
 
             Debug.LogWarning($"{nameof(SongManager)}: Missing {stemType} clip length for song {currentSongIndex}; using visual fade duration.", this);
-            return Mathf.Max(0.001f, visualFadeDuration);
+            return VisualFadeDuration;
         }
 
         AudioClip GetClipForStem(StemType stemType)
