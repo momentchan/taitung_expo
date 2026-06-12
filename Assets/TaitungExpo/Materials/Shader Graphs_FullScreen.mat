@@ -24,7 +24,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _DepthTexture:
-        m_Texture: {fileID: 8400000, guid: 1bb871c684236584d92da4b4e76d4cf3, type: 2}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _GradientTexture:
@@ -33,6 +33,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _TextTexture:
         m_Texture: {fileID: 8400000, guid: a5457237fbe59054db58b44d373e53e9, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TextUnder:
+        m_Texture: {fileID: 8400000, guid: fd0bc5e4e369e124ab116112e34cc208, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Texture2DAsset_1020e9b2f3514041abdb1b4c22658f8b_Out_0_Texture2D:

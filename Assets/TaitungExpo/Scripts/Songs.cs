@@ -23,7 +23,7 @@ public class Song
     [TextArea(3, 20)]
     public string lyrics;
 
-    // 1-based lyric ring numbers to keep visible and rotate during interaction mode.
+    // 1-based lyric ring numbers to keep visible during interaction mode.
     // Rings not listed here fade out. Default keeps ring 1 and ring 3.
     public int[] interactionVisibleLyricRings = { 1, 3 };
 

@@ -5,6 +5,9 @@ Shader "Unlit/TextQuad"
         _MainTex ("UI", 2D) = "white" {}
         _BloomSmallTex ("UI Bloom Small", 2D) = "black" {}
         _BloomLargeTex ("UI Bloom Large", 2D) = "black" {}
+        _TextUnderTexture ("Text Under Texture", 2D) = "black" {}
+        _TextUnderStrength ("Text Under Strength", Range(0, 2)) = 1
+        _TextUnderDistanceMaskRange ("Text Under Distance Mask Range", Vector) = (0.4, 0.4, 0, 0)
 
         [Header(Bloom Small)]
         _BloomSmallStrength ("Bloom Small Strength", Range(0, 4)) = 1
@@ -21,9 +24,19 @@ Shader "Unlit/TextQuad"
         _BloomLargeFbmInfluence ("Bloom Large FBM Influence", Range(0, 1)) = 1
 
         [Header(Final)]
-        [HDR] _HdrTint1 ("HDR Tint 1", Color) = (1,1,1,1)
-        [HDR] _HdrTint2 ("HDR Tint 2", Color) = (1,1,1,1)
-        _HdrTintBlend ("HDR Tint Blend", Range(0, 1)) = 0
+        [HDR] _HdrTintWhite ("HDR Tint White", Color) = (5,5,5,1)
+        [HDR] _HdrTint1 ("HDR Tint Red Accent", Color) = (4,0.35,0,1)
+        [HDR] _HdrTint2 ("HDR Tint Orange", Color) = (7,2.25,0,1)
+        [HDR] _HdrTint3 ("HDR Tint Yellow", Color) = (7,5.5,0.35,1)
+        _HdrTintRedWidth ("HDR Tint Red Width", Range(0.02, 0.5)) = 0.12
+        _HdrTintYellowStart ("HDR Tint Yellow Start", Range(0.1, 1)) = 0.68
+        _HdrTintRadiusScale ("HDR Tint Radius Scale", Range(0, 4)) = 1.85
+        _HdrTintNoiseScale ("HDR Tint Noise Scale", Range(0.1, 20)) = 4.8
+        _HdrTintNoiseStrength ("HDR Tint Noise Strength", Range(0, 1)) = 0.62
+        _HdrTintDiagonalStrength ("HDR Tint Diagonal Strength", Range(0, 1)) = 0.52
+        _HdrTintRadiusStrength ("HDR Tint Radius Strength", Range(0, 1)) = 0.22
+        _HdrTintBaseOffset ("HDR Tint Base Offset", Range(0, 1)) = 0.18
+        _HdrTintBlend ("HDR Tint Gradient Blend", Range(0, 1)) = 0
 
         [Header(Depth UV distort)]
         _DepthMap ("Depth Map", 2D) = "white" {}
@@ -84,6 +97,9 @@ Shader "Unlit/TextQuad"
             float4 _MainTex_ST;
             sampler2D _BloomSmallTex;
             sampler2D _BloomLargeTex;
+            sampler2D _TextUnderTexture;
+            half _TextUnderStrength;
+            float4 _TextUnderDistanceMaskRange;
 
             half _BloomSmallStrength;
             half _BloomLargeStrength;
@@ -98,8 +114,18 @@ Shader "Unlit/TextQuad"
             float _BloomLargeFbmPhase;
             half _BloomLargeFbmInfluence;
 
+            half4 _HdrTintWhite;
             half4 _HdrTint1;
             half4 _HdrTint2;
+            half4 _HdrTint3;
+            half _HdrTintRedWidth;
+            half _HdrTintYellowStart;
+            half _HdrTintRadiusScale;
+            half _HdrTintNoiseScale;
+            half _HdrTintNoiseStrength;
+            half _HdrTintDiagonalStrength;
+            half _HdrTintRadiusStrength;
+            half _HdrTintBaseOffset;
             half _HdrTintBlend;
 
             sampler2D _DepthMap;
@@ -151,9 +177,46 @@ Shader "Unlit/TextQuad"
                 return saturate(baseUv + distort * _UvDistortStrength);
             }
 
+            half4 SampleHdrTint(float2 uv)
+            {
+                float2 centeredUv = uv - 0.5;
+                float radius01 = saturate(length(centeredUv) * _HdrTintRadiusScale);
+                float diagonal01 = saturate(dot(uv, float2(0.72, 0.28)));
+                float2 broadNoiseUv = uv * max(_HdrTintNoiseScale, 1e-3h) + float2(radius01 * 1.7, radius01 * 1.19);
+                float noise01 = saturate(fbm3(broadNoiseUv, 0.37) * 0.5 + 0.5);
+                float baseGradient = saturate(
+                    diagonal01 * _HdrTintDiagonalStrength +
+                    radius01 * _HdrTintRadiusStrength +
+                    _HdrTintBaseOffset);
+                float noiseScatter = (noise01 - 0.5) * _HdrTintNoiseStrength;
+                half t = (half)saturate(baseGradient + noiseScatter);
+                half redWidth = max(_HdrTintRedWidth, 1e-3h);
+                half yellowStart = min(max(_HdrTintYellowStart, redWidth + 1e-3h), 0.999h);
+                half redToOrange = smoothstep(0.0h, redWidth, t);
+                half orangeToYellow = smoothstep(yellowStart, 1.0h, t);
+                half4 redOrange = lerp(_HdrTint1, _HdrTint2, redToOrange);
+
+                return lerp(redOrange, _HdrTint3, orangeToYellow);
+            }
+
+            half SampleTextUnderDistanceMask(float2 uv)
+            {
+                float inner = max(0.0, min(_TextUnderDistanceMaskRange.x, _TextUnderDistanceMaskRange.y));
+                float outer = max(0.0, max(_TextUnderDistanceMaskRange.x, _TextUnderDistanceMaskRange.y));
+                float enabled = step(1e-4, outer - inner);
+                float distanceToCenter = length(uv - 0.5) * 2.0;
+                float feather = max(fwidth(distanceToCenter) * 2.0, 0.002);
+                float innerFade = smoothstep(inner - feather, inner + feather, distanceToCenter);
+                float outerFade = 1.0 - smoothstep(outer - feather, outer + feather, distanceToCenter);
+                float removeBand = saturate(innerFade * outerFade);
+
+                return (half)lerp(1.0, 1.0 - removeBand, enabled);
+            }
+
             half4 frag (v2f i) : SV_Target
             {
                 float2 uvC = DistortedContentUv(i.uv, i.uvDepth);
+                half2 uv = (i.uv - 0.5) * float2(0.5625, 1) * 0.98 + 0.5;
 
                 half4 ui = tex2D(_MainTex, uvC);
                 half4 bloomSmall = tex2D(_BloomSmallTex, uvC);
@@ -165,18 +228,23 @@ Shader "Unlit/TextQuad"
                 float fLarge = fbm2(uvC * _BloomLargeFbmScale, _Time.y * _BloomLargeFbmTime + _BloomLargeFbmPhase);
                 float modLarge = lerp(1.0, saturate(fLarge * 0.5 + 0.5), saturate(_BloomLargeFbmInfluence));
 
-                half4 tint = lerp(_HdrTint1, _HdrTint2, saturate(_HdrTintBlend));
+                half4 gradientTint = SampleHdrTint(i.uv);
+                half4 tint = lerp(_HdrTintWhite, gradientTint, saturate(_HdrTintBlend));
                 half3 rgb = ui.rgb;
                 rgb += bloomSmall.rgb * (_BloomSmallStrength * (half)modSmall);
                 rgb += bloomLarge.rgb * (_BloomLargeStrength * (half)modLarge);
                 rgb *= tint.rgb;
 
+                half4 textUnder = tex2D(_TextUnderTexture, uv);
+                half textUnderStrength = _TextUnderStrength * SampleTextUnderDistanceMask(i.uv);
+                half textMask = saturate(max(max(rgb.r, rgb.g), rgb.b));
+                rgb = textUnder.rgb * textUnderStrength * (1.0h - textMask) + rgb;
 
                 float fAlpha = fbm2(uvC * _TextQuadAlphaFbmScale, _Time.y * _TextQuadAlphaFbmTimeScale + _TextQuadAlphaFbmPhase);
                 float alphaFbm = saturate(fAlpha * 0.5 + 0.5);
                 alphaFbm = smoothstep(_TextQuadAlphaFbmThreshold, 1.0, alphaFbm);
 
-                half4 curr = half4(rgb, tint.a * (half)alphaFbm);
+                half4 curr = half4(rgb, max(textUnder.a * textUnderStrength, tint.a * (half)alphaFbm));
 
                 // Same idea as FrameBlendFeature: lerp current composite toward last frame (history).
                 half useHistory = saturate(_FrameBlendFactor) * saturate(_FrameBlendHistoryValid);

@@ -263,6 +263,58 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!1 &52709115
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 52709116}
+  - component: {fileID: 52709117}
+  m_Layer: 0
+  m_Name: Hap
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &52709116
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52709115}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1235419239}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &52709117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52709115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3775962864755b43a790abf4d029c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pathMode: 1
+  _filePath: "C:\\TaitungExpo\\\u5531\u7247\u7DDA\u689D\u65CB\u8F49.mov"
+  _time: 0
+  _speed: 1
+  _loop: 1
+  _targetTexture: {fileID: 8400000, guid: fd0bc5e4e369e124ab116112e34cc208, type: 2}
+  _targetRenderer: {fileID: 0}
+  _targetMaterialProperty: _MainTex
 --- !u!1 &114879476
 GameObject:
   m_ObjectHideFlags: 0
@@ -1121,6 +1173,7 @@ GameObject:
   m_Component:
   - component: {fileID: 746747035}
   - component: {fileID: 746747036}
+  - component: {fileID: 746747037}
   m_Layer: 0
   m_Name: Setting
   m_TagString: Untagged
@@ -1157,6 +1210,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   position: {x: 0, y: 0}
   settingKey: 101
+--- !u!114 &746747037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 746747034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d058eac818fc0de468335882c181a642, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useTargetFramerate: 1
+  targetFrameRate: 30
 --- !u!1 &829538115
 GameObject:
   m_ObjectHideFlags: 0
@@ -1721,6 +1788,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1331614971}
+  - {fileID: 52709116}
   m_Father: {fileID: 524020361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1235419240
@@ -1740,6 +1808,7 @@ MonoBehaviour:
   ui: {fileID: 8400000, guid: 8e915e22c47c9f34dba42cef21e5a6c0, type: 2}
   hdrTintBlend: 0
   depthInteractionRatio: 1
+  transitionEffectPlayer: {fileID: 52709117}
 --- !u!1 &1331614970
 GameObject:
   m_ObjectHideFlags: 0

@@ -23,7 +23,6 @@ public class LyricRingsPrefabApplier : MonoBehaviour, IGUIUser
     {
         EnsurePlaybackPrefs();
         rotationSpeed.DoGUISlider(0f, 180f, "Ring Rotation Speed");
-        rotationAccelerationPrefs.DoGUISlider(0f, 180f, "Ring Rotation Acceleration");
     }
 
     public void SetupGUI()
@@ -49,7 +48,6 @@ public class LyricRingsPrefabApplier : MonoBehaviour, IGUIUser
     GameObject _activeInstance;
     LyricRingsPlaybackAnimator _playbackAnimator;
     PrefsFloat rotationSpeed;
-    PrefsFloat rotationAccelerationPrefs;
 
     void Awake()
     {
@@ -72,7 +70,7 @@ public class LyricRingsPrefabApplier : MonoBehaviour, IGUIUser
 
     void Update()
     {
-        _playbackAnimator?.Tick(Time.deltaTime, CurrentMaxRotationSpeed, CurrentRotationAcceleration);
+        _playbackAnimator?.Tick(Time.deltaTime, CurrentRotationSpeed);
     }
 
     void BindSongManager()
@@ -174,24 +172,14 @@ public class LyricRingsPrefabApplier : MonoBehaviour, IGUIUser
     void EnsurePlaybackPrefs()
     {
         rotationSpeed ??= new PrefsFloat($"{GetName()}_rotationSpeed", 2f);
-        rotationAccelerationPrefs ??= new PrefsFloat($"{GetName()}_rotationAcceleration", 2.5f);
     }
 
-    float CurrentMaxRotationSpeed
+    float CurrentRotationSpeed
     {
         get
         {
             EnsurePlaybackPrefs();
             return Mathf.Max(0f, rotationSpeed != null ? rotationSpeed.Get() : 18f);
-        }
-    }
-
-    float CurrentRotationAcceleration
-    {
-        get
-        {
-            EnsurePlaybackPrefs();
-            return Mathf.Max(0f, rotationAccelerationPrefs != null ? rotationAccelerationPrefs.Get() : 6f);
         }
     }
 
@@ -301,9 +289,7 @@ class LyricRingsPlaybackAnimator
     readonly HashSet<int> _interactionVisibleRingIndices = new HashSet<int>();
     TextFadeState[] _lyricStates = System.Array.Empty<TextFadeState>();
     TextFadeState[] _songNameStates = System.Array.Empty<TextFadeState>();
-    Transform[] _rotatingRings = System.Array.Empty<Transform>();
-    SongPlaybackMode _mode = SongPlaybackMode.Transition;
-    float _currentRotationSpeed;
+    Transform _rotationRoot;
 
     public LyricRingsPlaybackAnimator(
         LyricRingsPrefabMarker marker,
@@ -329,10 +315,10 @@ class LyricRingsPlaybackAnimator
             _songManager.OnPlaybackModeChanged -= OnPlaybackModeChanged;
     }
 
-    public void Tick(float deltaTime, float maxRotationSpeed, float rotationAcceleration)
+    public void Tick(float deltaTime, float rotationSpeed)
     {
         UpdateTextFades(deltaTime);
-        UpdateRingRotation(deltaTime, maxRotationSpeed, rotationAcceleration);
+        UpdateRingRotation(deltaTime, rotationSpeed);
     }
 
     void OnPlaybackModeChanged(SongPlaybackMode mode)
@@ -347,19 +333,15 @@ class LyricRingsPlaybackAnimator
 
         _lyricStates = BuildStates(marker.LyricTexts);
         _songNameStates = BuildStates(marker.SongNameTexts);
+        _rotationRoot = marker.transform;
         BuildInteractionVisibleRingSet(marker.LyricTexts, interactionVisibleLyricRings);
     }
 
     void ApplyMode(SongPlaybackMode mode, bool immediate)
     {
-        _mode = mode;
-
         bool interaction = mode == SongPlaybackMode.Interaction;
         SetSongNameTargets(interaction ? 0f : 1f);
         SetLyricTargets(interaction);
-
-        if (mode == SongPlaybackMode.Transition)
-            _currentRotationSpeed = 0f;
 
         if (immediate)
             ApplyTargetsImmediate();
@@ -371,12 +353,12 @@ class LyricRingsPlaybackAnimator
             _songNameStates[i].TargetAlpha = targetAlpha;
     }
 
-    void SetLyricTargets(bool interaction)
+    void SetLyricTargets(bool hideUnlistedLyrics)
     {
         for (int i = 0; i < _lyricStates.Length; i++)
         {
             bool keepVisible = _interactionVisibleRingIndices.Contains(i);
-            _lyricStates[i].TargetAlpha = interaction && !keepVisible ? 0f : 1f;
+            _lyricStates[i].TargetAlpha = hideUnlistedLyrics && !keepVisible ? 0f : 1f;
         }
     }
 
@@ -398,31 +380,17 @@ class LyricRingsPlaybackAnimator
             _songNameStates[i].MoveTowardTarget(step);
     }
 
-    void UpdateRingRotation(float deltaTime, float maxRotationSpeed, float rotationAcceleration)
+    void UpdateRingRotation(float deltaTime, float rotationSpeed)
     {
-        if (_mode != SongPlaybackMode.Interaction)
-            return;
-
-        maxRotationSpeed = Mathf.Max(0f, maxRotationSpeed);
-        rotationAcceleration = Mathf.Max(0f, rotationAcceleration);
-        _currentRotationSpeed = Mathf.MoveTowards(
-            _currentRotationSpeed,
-            maxRotationSpeed,
-            rotationAcceleration * deltaTime);
-
-        if (_currentRotationSpeed <= 0f)
+        rotationSpeed = Mathf.Max(0f, rotationSpeed);
+        if (rotationSpeed <= 0f)
             return;
 
         float direction = _firstRingClockwise ? -1f : 1f;
-        float deltaAngle = _currentRotationSpeed * deltaTime;
-        for (int i = 0; i < _rotatingRings.Length; i++)
-        {
-            Transform ring = _rotatingRings[i];
-            if (ring == null)
-                continue;
+        float deltaAngle = rotationSpeed * deltaTime;
 
-            ring.Rotate(0f, 0f, direction * deltaAngle, Space.Self);
-        }
+        if (_rotationRoot != null)
+            _rotationRoot.Rotate(0f, 0f, direction * deltaAngle, Space.Self);
     }
 
     void BuildInteractionVisibleRingSet(TMP_Text[] lyricTexts, int[] oneBasedRingNumbers)
@@ -433,21 +401,13 @@ class LyricRingsPlaybackAnimator
             ? oneBasedRingNumbers
             : DefaultInteractionVisibleLyricRings;
 
-        var rotatingRings = new List<Transform>();
         for (int i = 0; i < ringNumbers.Length; i++)
         {
             int zeroBasedIndex = ringNumbers[i] - 1;
             if (lyricTexts == null || zeroBasedIndex < 0 || zeroBasedIndex >= lyricTexts.Length)
                 continue;
-            if (!_interactionVisibleRingIndices.Add(zeroBasedIndex))
-                continue;
-
-            Transform ring = GetRingTransform(lyricTexts, zeroBasedIndex);
-            if (ring != null)
-                rotatingRings.Add(ring);
+            _interactionVisibleRingIndices.Add(zeroBasedIndex);
         }
-
-        _rotatingRings = rotatingRings.ToArray();
     }
 
     static TextFadeState[] BuildStates(TMP_Text[] texts)
@@ -459,13 +419,6 @@ class LyricRingsPlaybackAnimator
         for (int i = 0; i < texts.Length; i++)
             states[i] = new TextFadeState(texts[i]);
         return states;
-    }
-
-    static Transform GetRingTransform(TMP_Text[] texts, int index)
-    {
-        if (texts == null || index < 0 || index >= texts.Length || texts[index] == null)
-            return null;
-        return texts[index].transform;
     }
 
     struct TextFadeState
